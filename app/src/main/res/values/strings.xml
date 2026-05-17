@@ -1,3 +1,74 @@
 <resources>
+    <!-- App -->
     <string name="app_name">ShooterMind</string>
+    <string name="splash_tagline">Train smarter. Shoot better.</string>
+    <string name="coming_soon">Coming soon…</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_sessions">Sessions</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Screen titles -->
+    <string name="screen_login">Sign In</string>
+    <string name="screen_register">Create Account</string>
+    <string name="screen_home">Home</string>
+    <string name="screen_sessions">Training Sessions</string>
+    <string name="screen_new_session">New Session</string>
+    <string name="screen_stats">Statistics</string>
+    <string name="screen_profile">Profile</string>
+    <string name="screen_settings">Settings</string>
+
+    <!-- Auth -->
+    <string name="label_email">Email address</string>
+    <string name="label_password">Password</string>
+    <string name="label_confirm_password">Confirm password</string>
+    <string name="label_display_name">Display name</string>
+    <string name="btn_login">Sign In</string>
+    <string name="btn_register">Create Account</string>
+    <string name="btn_sign_in_google">Continue with Google</string>
+    <string name="btn_sign_in_facebook">Continue with Facebook</string>
+    <string name="btn_continue_anonymously">Continue as Guest</string>
+    <string name="login_no_account">Don\'t have an account? Sign up</string>
+    <string name="register_have_account">Already have an account? Sign in</string>
+    <string name="login_or_divider">or</string>
+
+    <!-- Home -->
+    <string name="home_welcome">Welcome back!</string>
+    <string name="home_recent_sessions">Recent Sessions</string>
+    <string name="home_quick_stats">Quick Stats</string>
+    <string name="home_start_session">Start Training</string>
+
+    <!-- Sessions -->
+    <string name="sessions_empty">No sessions yet.\nStart your first training!</string>
+    <string name="session_new">New Session</string>
+    <string name="session_add_fab">Add session</string>
+
+    <!-- New session -->
+    <string name="new_session_discipline">Discipline</string>
+    <string name="discipline_air_rifle">10m Air Rifle</string>
+    <string name="discipline_air_pistol">10m Air Pistol</string>
+
+    <!-- Stats -->
+    <string name="stats_average_score">Average Score</string>
+    <string name="stats_total_sessions">Total Sessions</string>
+    <string name="stats_best_score">Best Score</string>
+
+    <!-- Profile -->
+    <string name="profile_account">Account</string>
+    <string name="profile_go_to_settings">Settings</string>
+
+    <!-- Settings -->
+    <string name="settings_language">Language</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_sign_out">Sign Out</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_about">About</string>
+
+    <!-- Common -->
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_back">Back</string>
+    <string name="content_desc_back">Navigate back</string>
 </resources>

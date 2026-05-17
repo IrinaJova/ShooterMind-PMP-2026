@@ -1,0 +1,74 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">ShooterMind</string>
+    <string name="splash_tagline">Тренирај паметно. Пукај подобро.</string>
+    <string name="coming_soon">Наскоро…</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Почетна</string>
+    <string name="nav_sessions">Сесии</string>
+    <string name="nav_stats">Статистики</string>
+    <string name="nav_profile">Профил</string>
+
+    <!-- Screen titles -->
+    <string name="screen_login">Најава</string>
+    <string name="screen_register">Креирај профил</string>
+    <string name="screen_home">Почетна</string>
+    <string name="screen_sessions">Тренинг Сесии</string>
+    <string name="screen_new_session">Нова Сесија</string>
+    <string name="screen_stats">Статистики</string>
+    <string name="screen_profile">Профил</string>
+    <string name="screen_settings">Поставки</string>
+
+    <!-- Auth -->
+    <string name="label_email">Е-пошта</string>
+    <string name="label_password">Лозинка</string>
+    <string name="label_confirm_password">Потврди лозинка</string>
+    <string name="label_display_name">Прикажано Им е</string>
+    <string name="btn_login">Најави се</string>
+    <string name="btn_register">Креирај профил</string>
+    <string name="btn_sign_in_google">Продолжи со Google</string>
+    <string name="btn_sign_in_facebook">Продолжи со Facebook</string>
+    <string name="btn_continue_anonymously">Продолжи како гостин</string>
+    <string name="login_no_account">Немаш профил? Регистрирај се</string>
+    <string name="register_have_account">Веќе имаш профил? Најави се</string>
+    <string name="login_or_divider">или</string>
+
+    <!-- Home -->
+    <string name="home_welcome">Добредојде!</string>
+    <string name="home_recent_sessions">Последни Сесии</string>
+    <string name="home_quick_stats">Брзи Статистики</string>
+    <string name="home_start_session">Започни Тренинг</string>
+
+    <!-- Sessions -->
+    <string name="sessions_empty">Сè уште нема сесии.\nЗапочни го твојот прв тренинг!</string>
+    <string name="session_new">Нова Сесија</string>
+    <string name="session_add_fab">Додади сесија</string>
+
+    <!-- New session -->
+    <string name="new_session_discipline">Дисциплина</string>
+    <string name="discipline_air_rifle">Воздушна Пушка 10м</string>
+    <string name="discipline_air_pistol">Воздушен Пиштол 10м</string>
+
+    <!-- Stats -->
+    <string name="stats_average_score">Просечен Резултат</string>
+    <string name="stats_total_sessions">Вкупно Сесии</string>
+    <string name="stats_best_score">Најдобар Резултат</string>
+
+    <!-- Profile -->
+    <string name="profile_account">Профил</string>
+    <string name="profile_go_to_settings">Поставки</string>
+
+    <!-- Settings -->
+    <string name="settings_language">Јазик</string>
+    <string name="settings_notifications">Нотификации</string>
+    <string name="settings_sign_out">Одјава</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_about">За апликацијата</string>
+
+    <!-- Common -->
+    <string name="btn_save">Зачувај</string>
+    <string name="btn_cancel">Откажи</string>
+    <string name="btn_back">Назад</string>
+    <string name="content_desc_back">Оди назад</string>
+</resources>
