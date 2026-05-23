@@ -66,6 +66,13 @@
     <string name="settings_theme">Тема</string>
     <string name="settings_about">За апликацијата</string>
 
+    <!-- Validation / error messages -->
+    <string name="error_field_required">Ова поле е задолжително</string>
+    <string name="error_email_empty">Е-поштата не смее да биде празна</string>
+    <string name="error_password_too_short">Лозинката мора да има барем 6 знаци</string>
+    <string name="error_passwords_no_match">Лозинките не се совпаѓаат</string>
+    <string name="error_generic">Нешто тргна наопаку. Обиди се повторно</string>
+
     <!-- Common -->
     <string name="btn_save">Зачувај</string>
     <string name="btn_cancel">Откажи</string>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "394347539737",
+    "project_id": "shootermind-5f1dd",
+    "storage_bucket": "shootermind-5f1dd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394347539737:android:f76e16263ff0f9da4ea988",
+        "android_client_info": {
+          "package_name": "com.shootermind.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOSCLHl4I6sTfmo5AgQyKhD9uQTXdzsTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -29,7 +29,12 @@ fun ShooterMindNavGraph(
         // ── Splash ────────────────────────────────────────────────────────────
         composable(Routes.SPLASH) {
             SplashScreen(
-                onSplashFinished = {
+                onNavigateToHome = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
@@ -41,7 +46,7 @@ fun ShooterMindNavGraph(
         composable(Routes.LOGIN) {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
-                onLoginSuccess = {
+                onLoginSuccess       = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -51,8 +56,8 @@ fun ShooterMindNavGraph(
 
         composable(Routes.REGISTER) {
             RegisterScreen(
-                onNavigateToLogin = { navController.popBackStack() },
-                onRegisterSuccess = {
+                onNavigateToLogin  = { navController.popBackStack() },
+                onRegisterSuccess  = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }

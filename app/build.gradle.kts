@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    // hilt-android + ksp added in Phase 2 (when ViewModels / injection are introduced)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -45,19 +45,30 @@ dependencies {
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
 
-    // Compose BOM — all compose/* versions managed here
+    // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.material.icons.extended)  // full Material icon set
-    implementation(libs.material3.window.size)    // WindowSizeClass for adaptive layouts
+    implementation(libs.material.icons.extended)
+    implementation(libs.material3.window.size)
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
+
+    // Firebase BOM — all firebase/* versions managed here
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging)
+
+    // .await() extension for Firebase Tasks
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Test
     testImplementation(libs.junit)

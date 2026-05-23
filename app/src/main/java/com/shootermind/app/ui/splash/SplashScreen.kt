@@ -16,15 +16,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shootermind.app.R
+import com.shootermind.app.ui.auth.AuthViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(onSplashFinished: () -> Unit) {
-    // Phase 2 will replace this delay with a real Firebase auth-state check
+fun SplashScreen(
+    onNavigateToHome: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    authViewModel: AuthViewModel = viewModel()
+) {
     LaunchedEffect(Unit) {
         delay(1_500)
-        onSplashFinished()
+        if (authViewModel.isLoggedIn) onNavigateToHome() else onNavigateToLogin()
     }
 
     Column(
