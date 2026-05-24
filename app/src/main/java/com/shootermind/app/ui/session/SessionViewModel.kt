@@ -18,12 +18,20 @@ import java.util.UUID
 
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: SessionRepository = SessionRepositoryImpl(
+    private val sessionRepo = SessionRepositoryImpl(
         ShooterMindDatabase.getDatabase(application).trainingSessionDao()
     )
+    private val repository: SessionRepository = sessionRepo
 
     private val userId: String
         get() = Firebase.auth.currentUser?.uid ?: "anonymous"
+
+    init {
+        // Pull cloud sessions into Room when ViewModel starts
+        viewModelScope.launch {
+            if (userId != "anonymous") sessionRepo.syncFromCloud(userId)
+        }
+    }
 
     val sessions: StateFlow<List<TrainingSession>> = repository
         .getAllSessions(userId)

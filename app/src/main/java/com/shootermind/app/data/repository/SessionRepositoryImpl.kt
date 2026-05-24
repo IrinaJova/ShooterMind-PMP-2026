@@ -2,13 +2,15 @@ package com.shootermind.app.data.repository
 
 import com.shootermind.app.data.local.dao.TrainingSessionDao
 import com.shootermind.app.data.local.entity.TrainingSessionEntity
+import com.shootermind.app.data.remote.FirestoreSyncService
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.domain.model.TrainingSession
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class SessionRepositoryImpl(
-    private val dao: TrainingSessionDao
+    private val dao   : TrainingSessionDao,
+    private val remote: FirestoreSyncService = FirestoreSyncService()
 ) : SessionRepository {
 
     override fun getAllSessions(userId: String): Flow<List<TrainingSession>> =
@@ -17,13 +19,25 @@ class SessionRepositoryImpl(
     override fun getRecentSessions(userId: String, limit: Int): Flow<List<TrainingSession>> =
         dao.getRecentByUser(userId, limit).map { list -> list.map { it.toDomain() } }
 
-    override suspend fun insertSession(session: TrainingSession) =
+    override suspend fun insertSession(session: TrainingSession) {
         dao.insert(session.toEntity())
+        runCatching { remote.upsertSession(session) } // best-effort, never crash offline
+    }
 
-    override suspend fun deleteSession(session: TrainingSession) =
+    override suspend fun deleteSession(session: TrainingSession) {
         dao.delete(session.toEntity())
+        runCatching { remote.deleteSession(session) }
+    }
 
-    // ── Mapping helpers ────────────────────────────────────────────────────
+    /** Pull cloud sessions into local Room (called on login). */
+    suspend fun syncFromCloud(userId: String) {
+        runCatching {
+            val cloudSessions = remote.fetchSessions(userId)
+            cloudSessions.forEach { dao.insert(it.toEntity()) }
+        }
+    }
+
+    // ── Mapping ────────────────────────────────────────────────────────────
 
     private fun TrainingSessionEntity.toDomain() = TrainingSession(
         id         = id,

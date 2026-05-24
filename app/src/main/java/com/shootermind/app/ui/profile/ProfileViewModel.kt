@@ -30,9 +30,15 @@ sealed interface ProfileState {
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db         = ShooterMindDatabase.getDatabase(application)
-    private val repository : UserProfileRepository =
-        UserProfileRepositoryImpl(db.userProfileDao())
+    private val db          = ShooterMindDatabase.getDatabase(application)
+    private val profileRepo = UserProfileRepositoryImpl(db.userProfileDao())
+    private val repository  : UserProfileRepository = profileRepo
+
+    init {
+        viewModelScope.launch {
+            if (!isAnonymous && userId.isNotBlank()) profileRepo.syncFromCloud(userId)
+        }
+    }
 
     private val userId get() = Firebase.auth.currentUser?.uid ?: ""
     val isAnonymous   get() = Firebase.auth.currentUser?.isAnonymous == true
