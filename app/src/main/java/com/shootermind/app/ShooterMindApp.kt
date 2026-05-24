@@ -1,6 +1,11 @@
 package com.shootermind.app
 
 import android.app.Application
+import com.shootermind.app.core.notification.NotificationHelper
 
-// @HiltAndroidApp will be added in Phase 2 when Hilt is introduced
-class ShooterMindApp : Application()
+class ShooterMindApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        NotificationHelper.createChannel(this)
+    }
+}

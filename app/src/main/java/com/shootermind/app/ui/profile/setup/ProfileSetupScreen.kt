@@ -303,7 +303,8 @@ fun ProfileSetupScreen(
                     discipline        = selectedDiscipline,
                     personalBest      = personalBestText.toDoubleOrNull() ?: 0.0,
                     goal              = selectedGoal,
-                    profilePictureUri = profilePicPath
+                    profilePictureUri = profilePicPath,
+                    isNewProfile      = true
                 )
                 onSetupComplete()
             },

@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.shootermind.app.core.analytics.AnalyticsHelper
 import com.shootermind.app.data.repository.AuthRepository
 import com.shootermind.app.data.repository.AuthRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = AuthUiState.Loading
             val result = repository.signInWithEmail(email, password)
             _uiState.value = result.fold(
-                onSuccess = { AuthUiState.Success(it) },
+                onSuccess = {
+                    AnalyticsHelper.logLogin("email")
+                    AuthUiState.Success(it)
+                },
                 onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
             )
         }
@@ -41,7 +45,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = AuthUiState.Loading
             val result = repository.registerWithEmail(email, password, displayName)
             _uiState.value = result.fold(
-                onSuccess = { AuthUiState.Success(it) },
+                onSuccess = {
+                    AnalyticsHelper.logSignUp("email")
+                    AuthUiState.Success(it)
+                },
                 onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
             )
         }
@@ -53,7 +60,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = AuthUiState.Loading
             val result = repository.signInAnonymously()
             _uiState.value = result.fold(
-                onSuccess = { AuthUiState.Success(it) },
+                onSuccess = {
+                    AnalyticsHelper.logLogin("anonymous")
+                    AuthUiState.Success(it)
+                },
                 onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
             )
         }
@@ -65,7 +75,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = AuthUiState.Loading
             val result = repository.signInWithGoogle(context)
             _uiState.value = result.fold(
-                onSuccess = { AuthUiState.Success(it) },
+                onSuccess = {
+                    AnalyticsHelper.logLogin("google")
+                    AuthUiState.Success(it)
+                },
                 onFailure = { AuthUiState.Error(it.message ?: "Google sign-in failed") }
             )
         }
@@ -77,7 +90,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = AuthUiState.Loading
             val result = repository.handleFacebookToken(token)
             _uiState.value = result.fold(
-                onSuccess = { AuthUiState.Success(it) },
+                onSuccess = {
+                    AnalyticsHelper.logLogin("facebook")
+                    AuthUiState.Success(it)
+                },
                 onFailure = { AuthUiState.Error(it.message ?: "Facebook sign-in failed") }
             )
         }
@@ -85,6 +101,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     // ── Sign-out ───────────────────────────────────────────────────────────
     fun signOut() {
+        AnalyticsHelper.logSignOut()
         repository.signOut()
         _uiState.value = AuthUiState.Idle
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.shootermind.app.data.local.ShooterMindDatabase
+import com.shootermind.app.core.analytics.AnalyticsHelper
 import com.shootermind.app.data.repository.SessionRepository
 import com.shootermind.app.data.repository.SessionRepositoryImpl
 import com.shootermind.app.domain.model.Discipline
@@ -54,10 +55,17 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
                     notes      = notes
                 )
             )
+            AnalyticsHelper.logSessionCreated(
+                discipline = discipline.name,
+                score      = totalScore
+            )
         }
     }
 
     fun deleteSession(session: TrainingSession) {
-        viewModelScope.launch { repository.deleteSession(session) }
+        viewModelScope.launch {
+            repository.deleteSession(session)
+            AnalyticsHelper.logSessionDeleted(discipline = session.discipline.name)
+        }
     }
 }

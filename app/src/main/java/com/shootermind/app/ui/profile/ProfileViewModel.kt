@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.shootermind.app.data.local.ShooterMindDatabase
+import com.shootermind.app.core.analytics.AnalyticsHelper
 import com.shootermind.app.data.repository.UserProfileRepository
 import com.shootermind.app.data.repository.UserProfileRepositoryImpl
 import com.shootermind.app.domain.model.Discipline
@@ -58,7 +59,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         discipline       : Discipline,
         personalBest     : Double,
         goal             : TrainingGoal,
-        profilePictureUri: String?
+        profilePictureUri: String?,
+        isNewProfile     : Boolean = false
     ) {
         viewModelScope.launch {
             val category = calculateISSFCategory(birthDateMs)
@@ -75,6 +77,14 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     profilePictureUri = profilePictureUri
                 )
             )
+            if (isNewProfile) {
+                AnalyticsHelper.logProfileSetupComplete(
+                    category   = category.name,
+                    discipline = discipline.name
+                )
+            } else {
+                AnalyticsHelper.logProfileUpdated()
+            }
         }
     }
 
