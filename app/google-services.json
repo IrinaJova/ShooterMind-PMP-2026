@@ -12,7 +12,20 @@
           "package_name": "com.shootermind.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "394347539737-1th2t9oa1js0rblib3m3pql8ma0a2ni2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shootermind.app",
+            "certificate_hash": "d9ec542bef5576952f494db432a3ffff00885d66"
+          }
+        },
+        {
+          "client_id": "394347539737-2sv850hofie6p5ll7h6afsa2ft0labql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDOSCLHl4I6sTfmo5AgQyKhD9uQTXdzsTI"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "394347539737-2sv850hofie6p5ll7h6afsa2ft0labql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
