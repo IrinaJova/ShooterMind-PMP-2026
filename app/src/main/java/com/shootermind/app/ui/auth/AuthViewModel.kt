@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.shootermind.app.data.repository.AuthRepository
 import com.shootermind.app.data.repository.AuthRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +20,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    val isLoggedIn: Boolean get() = repository.isLoggedIn
+    val isLoggedIn : Boolean get() = repository.isLoggedIn
+    val isAnonymous: Boolean get() = Firebase.auth.currentUser?.isAnonymous == true
 
     // ── Email / password sign-in ───────────────────────────────────────────
     fun signInWithEmail(email: String, password: String) {

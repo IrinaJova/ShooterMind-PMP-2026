@@ -11,6 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,17 +21,43 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shootermind.app.R
 import com.shootermind.app.ui.auth.AuthViewModel
+import com.shootermind.app.ui.profile.ProfileState
+import com.shootermind.app.ui.profile.ProfileViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun SplashScreen(
-    onNavigateToHome: () -> Unit,
-    onNavigateToLogin: () -> Unit,
-    authViewModel: AuthViewModel = viewModel()
+    onNavigateToHome        : () -> Unit,
+    onNavigateToLogin       : () -> Unit,
+    onNavigateToProfileSetup: () -> Unit,
+    authViewModel   : AuthViewModel   = viewModel(),
+    profileViewModel: ProfileViewModel = viewModel()
 ) {
+    val profileState by profileViewModel.profileState.collectAsState()
+
     LaunchedEffect(Unit) {
         delay(1_500)
-        if (authViewModel.isLoggedIn) onNavigateToHome() else onNavigateToLogin()
+
+        if (!authViewModel.isLoggedIn) {
+            onNavigateToLogin()
+            return@LaunchedEffect
+        }
+
+        // Anonymous users skip profile setup
+        if (profileViewModel.isAnonymous) {
+            onNavigateToHome()
+            return@LaunchedEffect
+        }
+
+        // Wait for Room to resolve the profile
+        val resolved = profileViewModel.profileState
+            .first { it !is ProfileState.Loading }
+
+        when (resolved) {
+            is ProfileState.Complete -> onNavigateToHome()
+            else                     -> onNavigateToProfileSetup()
+        }
     }
 
     Column(

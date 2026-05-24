@@ -61,10 +61,42 @@
 
     <!-- Settings -->
     <string name="settings_language">Јазик</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_macedonian">Македонски</string>
+    <string name="settings_language_hint">Апликацијата ќе се рестартира за да го примени јазикот.</string>
     <string name="settings_notifications">Нотификации</string>
     <string name="settings_sign_out">Одјава</string>
     <string name="settings_theme">Тема</string>
     <string name="settings_about">За апликацијата</string>
+
+    <!-- Profile setup -->
+    <string name="screen_profile_setup">Комплетирај го профилот</string>
+    <string name="profile_setup_subtitle">Кажи ни нешто за себе</string>
+    <string name="label_first_name">Име</string>
+    <string name="label_last_name">Презиме</string>
+    <string name="label_date_of_birth">Датум на раѓање</string>
+    <string name="label_personal_best">Личен рекорд</string>
+    <string name="label_goal">Тренинг цел</string>
+    <string name="btn_save_profile">Зачувај профил</string>
+    <string name="btn_skip_for_now">Прескокни засега</string>
+    <string name="profile_no_data">Комплетирај го профилот за да ги видиш твоите информации.</string>
+
+    <!-- ISSF categories -->
+    <string name="issf_youth">Јуниор (под 18)</string>
+    <string name="issf_junior">Јуниор (18–20)</string>
+    <string name="issf_senior">Сениор (21+)</string>
+
+    <!-- Training goals -->
+    <string name="goal_improve_score">↑ Подобри резултат</string>
+    <string name="goal_consistency">~ Конзистентност</string>
+    <string name="goal_technique">⚙ Техничко подобрување</string>
+    <string name="goal_competition_prep">🏆 Подготовка за натпревар</string>
+    <string name="goal_mental">🧠 Ментален тренинг</string>
+
+    <!-- Stats -->
+    <string name="stats_no_data">Сè уште нема сесии.\nЗапочни тренинг за да ги видиш статистиките!</string>
+    <string name="stats_overview">Преглед</string>
+    <string name="stats_by_discipline">По дисциплина</string>
 
     <!-- Facebook SDK -->
     <string name="facebook_app_id">1529079818781477</string>

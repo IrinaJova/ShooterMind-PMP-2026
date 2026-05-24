@@ -61,10 +61,42 @@
 
     <!-- Settings -->
     <string name="settings_language">Language</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_macedonian">Македонски</string>
+    <string name="settings_language_hint">App will restart to apply the language change.</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_sign_out">Sign Out</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_about">About</string>
+
+    <!-- Profile setup -->
+    <string name="screen_profile_setup">Complete Your Profile</string>
+    <string name="profile_setup_subtitle">Tell us a bit about yourself</string>
+    <string name="label_first_name">First Name</string>
+    <string name="label_last_name">Last Name</string>
+    <string name="label_date_of_birth">Date of Birth</string>
+    <string name="label_personal_best">Personal Best Score</string>
+    <string name="label_goal">Training Goal</string>
+    <string name="btn_save_profile">Save Profile</string>
+    <string name="btn_skip_for_now">Skip for now</string>
+    <string name="profile_no_data">Complete your profile to see your info here.</string>
+
+    <!-- ISSF categories -->
+    <string name="issf_youth">Youth (Under 18)</string>
+    <string name="issf_junior">Junior (18–20)</string>
+    <string name="issf_senior">Senior (21+)</string>
+
+    <!-- Training goals -->
+    <string name="goal_improve_score">↑ Improve Score</string>
+    <string name="goal_consistency">~ Consistency</string>
+    <string name="goal_technique">⚙ Technical Development</string>
+    <string name="goal_competition_prep">🏆 Competition Prep</string>
+    <string name="goal_mental">🧠 Mental Training</string>
+
+    <!-- Stats -->
+    <string name="stats_no_data">No sessions yet.\nStart training to see your statistics!</string>
+    <string name="stats_overview">Overview</string>
+    <string name="stats_by_discipline">By Discipline</string>
 
     <!-- Facebook SDK -->
     <string name="facebook_app_id">1529079818781477</string>

@@ -5,16 +5,19 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.shootermind.app.data.local.dao.TrainingSessionDao
+import com.shootermind.app.data.local.dao.UserProfileDao
 import com.shootermind.app.data.local.entity.TrainingSessionEntity
+import com.shootermind.app.data.local.entity.UserProfileEntity
 
 @Database(
-    entities  = [TrainingSessionEntity::class],
-    version   = 1,
+    entities     = [TrainingSessionEntity::class, UserProfileEntity::class],
+    version      = 2,
     exportSchema = false
 )
 abstract class ShooterMindDatabase : RoomDatabase() {
 
     abstract fun trainingSessionDao(): TrainingSessionDao
+    abstract fun userProfileDao(): UserProfileDao
 
     companion object {
         @Volatile
@@ -26,7 +29,10 @@ abstract class ShooterMindDatabase : RoomDatabase() {
                     context.applicationContext,
                     ShooterMindDatabase::class.java,
                     "shootermind_db"
-                ).build().also { INSTANCE = it }
+                )
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build()
+                .also { INSTANCE = it }
             }
     }
 }

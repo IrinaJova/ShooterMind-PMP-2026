@@ -10,6 +10,7 @@ object Routes {
     const val STATS         = "stats"
     const val PROFILE       = "profile"
     const val SETTINGS      = "settings"
+    const val PROFILE_SETUP = "profile_setup"
 
     // Session detail added in Phase 4 alongside full session implementation
     const val SESSION_DETAIL = "session_detail/{sessionId}"
