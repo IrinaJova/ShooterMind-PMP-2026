@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.googleid)
+    implementation(libs.facebook.login)
 
     // Room
     implementation(libs.androidx.room.runtime)

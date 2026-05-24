@@ -66,6 +66,11 @@
     <string name="settings_theme">Тема</string>
     <string name="settings_about">За апликацијата</string>
 
+    <!-- Facebook SDK -->
+    <string name="facebook_app_id">1529079818781477</string>
+    <string name="fb_login_protocol_scheme">fb1529079818781477</string>
+    <string name="facebook_client_token">b837ab59aa6334da44d24779cb7b093f</string>
+
     <!-- Validation / error messages -->
     <string name="error_field_required">Ова поле е задолжително</string>
     <string name="error_email_empty">Е-поштата не смее да биде празна</string>

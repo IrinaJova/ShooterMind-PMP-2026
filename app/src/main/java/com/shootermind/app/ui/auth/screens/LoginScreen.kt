@@ -23,6 +23,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +59,31 @@ fun LoginScreen(
 ) {
     val uiState by authViewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // ── Facebook setup ───────────────────────────────────────────────────
+    val callbackManager = remember { CallbackManager.Factory.create() }
+    val facebookLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        callbackManager.onActivityResult(
+            result.resultCode, result.resultCode, result.data
+        )
+    }
+    DisposableEffect(Unit) {
+        LoginManager.getInstance().registerCallback(
+            callbackManager,
+            object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult) {
+                    authViewModel.handleFacebookToken(result.accessToken.token)
+                }
+                override fun onCancel() {}
+                override fun onError(error: FacebookException) {
+                    authViewModel.handleFacebookToken("") // triggers error state
+                }
+            }
+        )
+        onDispose { LoginManager.getInstance().unregisterCallback(callbackManager) }
+    }
 
     var email    by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -172,7 +205,13 @@ fun LoginScreen(
             }
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
-                onClick  = { /* TODO Phase 3 – Facebook Sign-In */ },
+                onClick  = {
+                    LoginManager.getInstance().logInWithReadPermissions(
+                        context as androidx.activity.ComponentActivity,
+                        callbackManager,
+                        listOf("email", "public_profile")
+                    )
+                },
                 enabled  = !isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {

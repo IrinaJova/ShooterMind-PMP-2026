@@ -68,6 +68,18 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // ── Facebook Sign-In ───────────────────────────────────────────────────
+    fun handleFacebookToken(token: String) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+            val result = repository.handleFacebookToken(token)
+            _uiState.value = result.fold(
+                onSuccess = { AuthUiState.Success(it) },
+                onFailure = { AuthUiState.Error(it.message ?: "Facebook sign-in failed") }
+            )
+        }
+    }
+
     // ── Sign-out ───────────────────────────────────────────────────────────
     fun signOut() {
         repository.signOut()

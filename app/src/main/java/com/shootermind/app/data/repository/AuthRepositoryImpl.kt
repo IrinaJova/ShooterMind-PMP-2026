@@ -7,6 +7,7 @@ import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -77,6 +78,14 @@ class AuthRepositoryImpl : AuthRepository {
         val googleIdToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
         val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
         val authResult = auth.signInWithCredential(firebaseCredential).await()
+        authResult.user!!.toAuthUser()
+    }
+
+    // ── Facebook Sign-In ───────────────────────────────────────────────────
+
+    override suspend fun handleFacebookToken(token: String): Result<AuthUser> = runCatching {
+        val credential = FacebookAuthProvider.getCredential(token)
+        val authResult = auth.signInWithCredential(credential).await()
         authResult.user!!.toAuthUser()
     }
 
