@@ -67,6 +67,10 @@
     <string name="settings_notifications">Нотификации</string>
     <string name="settings_sign_out">Одјава</string>
     <string name="settings_theme">Тема</string>
+    <string name="settings_theme_light">Светла</string>
+    <string name="settings_theme_dark">Темна</string>
+    <string name="settings_theme_system">Системска</string>
+    <string name="settings_theme_hint">Промената се применува веднаш, без рестарт.</string>
     <string name="settings_about">За апликацијата</string>
 
     <!-- Profile setup -->

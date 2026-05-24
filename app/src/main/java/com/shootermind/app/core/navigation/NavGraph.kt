@@ -18,15 +18,17 @@ import com.shootermind.app.ui.session.screens.SessionListScreen
 import com.shootermind.app.ui.settings.SettingsScreen
 import com.shootermind.app.ui.splash.SplashScreen
 import com.shootermind.app.ui.stats.StatsScreen
+import com.shootermind.app.ui.theme.ThemeViewModel
 
 @Composable
 fun ShooterMindNavGraph(
-    navController: NavHostController,
-    modifier     : Modifier = Modifier
+    navController : NavHostController,
+    themeViewModel: ThemeViewModel,
+    modifier      : Modifier = Modifier
 ) {
     // Activity-scoped ViewModels — shared across destinations
-    val sessionViewModel: SessionViewModel  = viewModel()
-    val profileViewModel: ProfileViewModel  = viewModel()
+    val sessionViewModel: SessionViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
 
     NavHost(
         navController    = navController,
@@ -119,7 +121,7 @@ fun ShooterMindNavGraph(
 
         composable(Routes.PROFILE) {
             ProfileScreen(
-                profileViewModel    = profileViewModel,
+                profileViewModel     = profileViewModel,
                 onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
                 onSignOut            = {
                     navController.navigate(Routes.LOGIN) {
@@ -130,7 +132,10 @@ fun ShooterMindNavGraph(
         }
 
         composable(Routes.SETTINGS) {
-            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+            SettingsScreen(
+                themeViewModel = themeViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
