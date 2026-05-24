@@ -12,12 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -47,7 +45,6 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { /* granted or denied — FCM still works for background */ }
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -68,8 +65,10 @@ class MainActivity : ComponentActivity() {
 
             ShooterMindTheme(darkTheme = isDark) {
                 // ── Adaptive nav ───────────────────────────────────────────
-                val windowSizeClass   = calculateWindowSizeClass(this)
-                val useNavRail        = windowSizeClass.widthSizeClass != WindowWidthSizeClass.COMPACT
+                // ≥600 dp = medium/expanded (landscape phone or tablet) → rail
+                // < 600 dp = compact (phone portrait) → bottom bar
+                val screenWidthDp = LocalConfiguration.current.screenWidthDp
+                val useNavRail    = screenWidthDp >= 600
 
                 val navController      = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
