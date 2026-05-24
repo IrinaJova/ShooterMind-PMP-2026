@@ -15,11 +15,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shootermind.app.R
+import com.shootermind.app.core.util.OnboardingPrefs
 import com.shootermind.app.ui.auth.AuthViewModel
 import com.shootermind.app.ui.profile.ProfileState
 import com.shootermind.app.ui.profile.ProfileViewModel
@@ -28,16 +30,24 @@ import kotlinx.coroutines.flow.first
 
 @Composable
 fun SplashScreen(
-    onNavigateToHome        : () -> Unit,
-    onNavigateToLogin       : () -> Unit,
-    onNavigateToProfileSetup: () -> Unit,
-    authViewModel   : AuthViewModel   = viewModel(),
-    profileViewModel: ProfileViewModel = viewModel()
+    onNavigateToHome         : () -> Unit,
+    onNavigateToLogin        : () -> Unit,
+    onNavigateToProfileSetup : () -> Unit,
+    onNavigateToOnboarding   : () -> Unit,
+    authViewModel    : AuthViewModel    = viewModel(),
+    profileViewModel : ProfileViewModel = viewModel()
 ) {
+    val context      = LocalContext.current
     val profileState by profileViewModel.profileState.collectAsState()
 
     LaunchedEffect(Unit) {
-        delay(1_500)
+        delay(1_200)
+
+        // First launch — show onboarding
+        if (!OnboardingPrefs.isCompleted(context)) {
+            onNavigateToOnboarding()
+            return@LaunchedEffect
+        }
 
         if (!authViewModel.isLoggedIn) {
             onNavigateToLogin()

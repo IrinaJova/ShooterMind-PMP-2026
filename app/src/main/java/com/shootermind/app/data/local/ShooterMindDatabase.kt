@@ -11,7 +11,7 @@ import com.shootermind.app.data.local.entity.UserProfileEntity
 
 @Database(
     entities     = [TrainingSessionEntity::class, UserProfileEntity::class],
-    version      = 2,
+    version      = 4,
     exportSchema = false
 )
 abstract class ShooterMindDatabase : RoomDatabase() {

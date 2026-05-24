@@ -45,10 +45,58 @@
     <string name="session_new">Нова Сесија</string>
     <string name="session_add_fab">Додади сесија</string>
 
-    <!-- New session -->
+    <!-- New session — discipline / mode -->
     <string name="new_session_discipline">Дисциплина</string>
     <string name="discipline_air_rifle">Воздушна Пушка 10м</string>
     <string name="discipline_air_pistol">Воздушен Пиштол 10м</string>
+    <string name="new_session_default_label">Твојата дисциплина</string>
+    <string name="new_session_keep_default">Задржи: %1$s</string>
+    <string name="new_session_switch_to">Префрли на %1$s</string>
+    <string name="new_session_input_mode">Како сакаш да ги внесеш резултатите?</string>
+    <string name="new_session_mode_series">По серии</string>
+    <string name="new_session_mode_series_desc">10 истрели по серија</string>
+    <string name="new_session_mode_shot">Истрел по истрел</string>
+    <string name="new_session_mode_shot_desc">Авто-групирање на секои 10</string>
+
+    <!-- New session — step labels -->
+    <string name="new_session_step_discipline">Дисциплина</string>
+    <string name="new_session_step_details">Детали</string>
+    <string name="new_session_step_training">Тренинг</string>
+    <string name="new_session_step_reflection">Рефлексија</string>
+
+    <!-- New session — details -->
+    <string name="new_session_date">Датум</string>
+    <string name="new_session_duration">Времетраење</string>
+    <string name="new_session_timer_start">Стартувај тајмер</string>
+    <string name="new_session_timer_stop">Стопирај тајмер</string>
+    <string name="new_session_duration_manual">Времетраење (минути)</string>
+    <string name="new_session_notes">Белешки (опционално)</string>
+    <string name="new_session_photo">Додај фотографија</string>
+    <string name="new_session_photo_change">Смени фотографија</string>
+
+    <!-- New session — training -->
+    <string name="new_session_shot_of_ten">Истрел %1$d / 10</string>
+    <string name="new_session_shot_n">Истрел %1$d</string>
+    <string name="new_session_score_hint">Резултат (пр. 10.3)</string>
+    <string name="new_session_score_hint_pistol">Резултат (0–10)</string>
+    <string name="new_session_add_shot">Додај истрел</string>
+    <string name="new_session_confirm_series">Потврди серија</string>
+    <string name="new_session_add_series">+ Нова серија</string>
+    <string name="new_session_series_label">Серија %1$d</string>
+    <string name="new_session_stat_total">Вкупно</string>
+    <string name="new_session_stat_shots">Истрели</string>
+    <string name="new_session_stat_avg">Просек</string>
+    <string name="new_session_stat_series">Серии</string>
+
+    <!-- Reflection -->
+    <string name="reflection_title">Рефлексија</string>
+    <string name="reflection_learned">Што научив денес?</string>
+    <string name="reflection_mistakes">Какви грешки направив?</string>
+    <string name="reflection_improve">Како можам да бидам подобар следниот пат?</string>
+
+    <!-- Buttons -->
+    <string name="btn_next">Следно</string>
+    <string name="btn_save_session">Зачувај сесија</string>
 
     <!-- Stats -->
     <string name="stats_average_score">Просечен Резултат</string>
@@ -119,4 +167,63 @@
     <string name="btn_cancel">Откажи</string>
     <string name="btn_back">Назад</string>
     <string name="content_desc_back">Оди назад</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_choose_language">Избери Јазик</string>
+    <string name="onboarding_lang_subtitle">Можеш да го смениш подоцна во Поставки</string>
+    <string name="onboarding_slide1_title">Добредојде во ShooterMind</string>
+    <string name="onboarding_slide1_body">Твојот личен придружник за стрелачки тренинг — создаден за прецизни спортисти.</string>
+    <string name="onboarding_slide2_title">Следи ги сесиите</string>
+    <string name="onboarding_slide2_body">Бележи резултати, серии и тренинг податоци за секунди. Никогаш не губи резултат.</string>
+    <string name="onboarding_slide3_title">Анализирај напредок</string>
+    <string name="onboarding_slide3_body">Открij тенденции, споредувај сесии и гледај точно каде напредуваш.</string>
+    <string name="onboarding_slide4_title">Дневник на тренинг</string>
+    <string name="onboarding_slide4_body">Оцени ја концентрацијата, енергијата и физичката состојба по секоја сесија.</string>
+    <string name="onboarding_slide5_title">Спремен за тренинг?</string>
+    <string name="onboarding_slide5_body">Креирај профил и почни паметно да тренираш денес.</string>
+    <string name="onboarding_get_started">Започни</string>
+    <string name="onboarding_next">Следно</string>
+    <string name="onboarding_back">Назад</string>
+    <string name="onboarding_skip">Прескокни</string>
+
+    <!-- Home — enhanced -->
+    <string name="home_welcome_name">Добредојде, %1$s!</string>
+    <string name="home_first_session_title">Започни прва сесија</string>
+    <string name="home_first_session_body">Следи го тренинг напредокот со прв запис на сесија.</string>
+    <string name="home_first_session_cta">Започни тренинг</string>
+
+    <!-- New session — tabs -->
+    <string name="tab_session_info">Инфо за сесија</string>
+    <string name="tab_journal">Дневник</string>
+
+    <!-- New session — session info fields -->
+    <string name="session_start_time">Почеток</string>
+    <string name="session_end_time">Крај</string>
+    <string name="session_time_not_set">Не е поставено</string>
+    <string name="session_competition">Натпревар</string>
+    <string name="session_control_session">Контролна сесија</string>
+    <string name="session_result_section">Резултат</string>
+    <string name="session_decimal_score">Децимален резултат (пр. 10.4)</string>
+    <string name="session_split_series">Подели во серии</string>
+    <string name="session_series_count">Број на серии</string>
+    <string name="session_shots_per_series">Истрели по серија</string>
+    <string name="session_series_score_hint">Серија %1$d</string>
+    <string name="session_total_score_label">Вкупен резултат</string>
+    <string name="session_shot_count_label">Број истрели</string>
+    <string name="session_calculated_total">Пресметано вкупно</string>
+
+    <!-- Journal tab -->
+    <string name="journal_notes">Мои белешки</string>
+    <string name="journal_notes_hint">Напиши за денешната сесија…</string>
+    <string name="journal_batch">Серија / Муниција</string>
+    <string name="journal_air_pressure">Воздушен притисок (bar)</string>
+    <string name="journal_state_title">Физичка и ментална состојба</string>
+    <string name="journal_muscle_recovery">Мускулен опоравок</string>
+    <string name="journal_fatigue">Замор</string>
+    <string name="journal_concentration">Концентрација</string>
+    <string name="journal_endurance">Издржливост</string>
+    <string name="journal_heart_rate">Срцев ритам</string>
+
+    <!-- Validation -->
+    <string name="error_not_enough_data">Внеси барем резултат или некој журнал запис пред снимање.</string>
 </resources>

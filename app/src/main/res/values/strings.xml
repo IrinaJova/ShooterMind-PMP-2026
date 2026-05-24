@@ -45,10 +45,58 @@
     <string name="session_new">New Session</string>
     <string name="session_add_fab">Add session</string>
 
-    <!-- New session -->
+    <!-- New session — discipline / mode -->
     <string name="new_session_discipline">Discipline</string>
     <string name="discipline_air_rifle">10m Air Rifle</string>
     <string name="discipline_air_pistol">10m Air Pistol</string>
+    <string name="new_session_default_label">Your default discipline</string>
+    <string name="new_session_keep_default">Keep: %1$s</string>
+    <string name="new_session_switch_to">Switch to %1$s</string>
+    <string name="new_session_input_mode">How do you want to add scores?</string>
+    <string name="new_session_mode_series">By Series</string>
+    <string name="new_session_mode_series_desc">10 shots per series</string>
+    <string name="new_session_mode_shot">Shot by Shot</string>
+    <string name="new_session_mode_shot_desc">Auto-group every 10 shots</string>
+
+    <!-- New session — step labels -->
+    <string name="new_session_step_discipline">Discipline</string>
+    <string name="new_session_step_details">Details</string>
+    <string name="new_session_step_training">Training</string>
+    <string name="new_session_step_reflection">Reflection</string>
+
+    <!-- New session — details -->
+    <string name="new_session_date">Date</string>
+    <string name="new_session_duration">Duration</string>
+    <string name="new_session_timer_start">Start Timer</string>
+    <string name="new_session_timer_stop">Stop Timer</string>
+    <string name="new_session_duration_manual">Duration (minutes)</string>
+    <string name="new_session_notes">Notes (optional)</string>
+    <string name="new_session_photo">Add Photo</string>
+    <string name="new_session_photo_change">Change Photo</string>
+
+    <!-- New session — training -->
+    <string name="new_session_shot_of_ten">Shot %1$d / 10</string>
+    <string name="new_session_shot_n">Shot %1$d</string>
+    <string name="new_session_score_hint">Score (e.g. 10.3)</string>
+    <string name="new_session_score_hint_pistol">Score (0–10)</string>
+    <string name="new_session_add_shot">Add Shot</string>
+    <string name="new_session_confirm_series">Confirm Series</string>
+    <string name="new_session_add_series">+ New Series</string>
+    <string name="new_session_series_label">Series %1$d</string>
+    <string name="new_session_stat_total">Total</string>
+    <string name="new_session_stat_shots">Shots</string>
+    <string name="new_session_stat_avg">Average</string>
+    <string name="new_session_stat_series">Series</string>
+
+    <!-- Reflection -->
+    <string name="reflection_title">Session Reflection</string>
+    <string name="reflection_learned">What did I learn today?</string>
+    <string name="reflection_mistakes">What mistakes did I make?</string>
+    <string name="reflection_improve">How can I do better next time?</string>
+
+    <!-- Buttons -->
+    <string name="btn_next">Next</string>
+    <string name="btn_save_session">Save Session</string>
 
     <!-- Stats -->
     <string name="stats_average_score">Average Score</string>
@@ -119,4 +167,63 @@
     <string name="btn_cancel">Cancel</string>
     <string name="btn_back">Back</string>
     <string name="content_desc_back">Navigate back</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_choose_language">Choose Your Language</string>
+    <string name="onboarding_lang_subtitle">You can change this later in Settings</string>
+    <string name="onboarding_slide1_title">Welcome to ShooterMind</string>
+    <string name="onboarding_slide1_body">Your personal shooting training companion — built for precision athletes.</string>
+    <string name="onboarding_slide2_title">Track Every Session</string>
+    <string name="onboarding_slide2_body">Log your scores, series, and training data in seconds. Never lose a result.</string>
+    <string name="onboarding_slide3_title">Analyze Your Progress</string>
+    <string name="onboarding_slide3_body">Discover trends, compare sessions, and see exactly where you\'re improving.</string>
+    <string name="onboarding_slide4_title">Journal Your Journey</string>
+    <string name="onboarding_slide4_body">Rate your focus, energy, and physical state after every session.</string>
+    <string name="onboarding_slide5_title">Ready to Level Up?</string>
+    <string name="onboarding_slide5_body">Create your account and start training smarter today.</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_skip">Skip</string>
+
+    <!-- Home — enhanced -->
+    <string name="home_welcome_name">Welcome back, %1$s!</string>
+    <string name="home_first_session_title">Start Your First Session</string>
+    <string name="home_first_session_body">Track your training progress by logging your first session.</string>
+    <string name="home_first_session_cta">Start Training</string>
+
+    <!-- New session — tabs -->
+    <string name="tab_session_info">Session Info</string>
+    <string name="tab_journal">Journal</string>
+
+    <!-- New session — session info fields -->
+    <string name="session_start_time">Start Time</string>
+    <string name="session_end_time">End Time</string>
+    <string name="session_time_not_set">Not set</string>
+    <string name="session_competition">Competition</string>
+    <string name="session_control_session">Control Session</string>
+    <string name="session_result_section">Result</string>
+    <string name="session_decimal_score">Decimal Score (e.g. 10.4)</string>
+    <string name="session_split_series">Split Into Series</string>
+    <string name="session_series_count">Number of Series</string>
+    <string name="session_shots_per_series">Shots per Series</string>
+    <string name="session_series_score_hint">Series %1$d</string>
+    <string name="session_total_score_label">Total Score</string>
+    <string name="session_shot_count_label">Shot Count</string>
+    <string name="session_calculated_total">Calculated Total</string>
+
+    <!-- Journal tab -->
+    <string name="journal_notes">My Notes</string>
+    <string name="journal_notes_hint">Write about today\'s session…</string>
+    <string name="journal_batch">Batch / Ammunition</string>
+    <string name="journal_air_pressure">Air Pressure (bar)</string>
+    <string name="journal_state_title">Physical &amp; Mental State</string>
+    <string name="journal_muscle_recovery">Muscle Recovery</string>
+    <string name="journal_fatigue">Fatigue</string>
+    <string name="journal_concentration">Concentration</string>
+    <string name="journal_endurance">Endurance</string>
+    <string name="journal_heart_rate">Heart Rate</string>
+
+    <!-- Validation -->
+    <string name="error_not_enough_data">Please enter at least a result or some journal data before saving.</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import com.shootermind.app.ui.auth.screens.LoginScreen
 import com.shootermind.app.ui.auth.screens.RegisterScreen
 import com.shootermind.app.ui.home.HomeScreen
+import com.shootermind.app.ui.onboarding.OnboardingScreen
 import com.shootermind.app.ui.profile.ProfileScreen
 import com.shootermind.app.ui.profile.ProfileViewModel
 import com.shootermind.app.ui.profile.setup.ProfileSetupScreen
@@ -54,7 +55,23 @@ fun ShooterMindNavGraph(
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
                 },
+                onNavigateToOnboarding   = {
+                    navController.navigate(Routes.ONBOARDING) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                },
                 profileViewModel = profileViewModel
+            )
+        }
+
+        // ── Onboarding ────────────────────────────────────────────────────
+        composable(Routes.ONBOARDING) {
+            OnboardingScreen(
+                onComplete = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.ONBOARDING) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -97,7 +114,8 @@ fun ShooterMindNavGraph(
         composable(Routes.HOME) {
             HomeScreen(
                 onStartNewSession = { navController.navigate(Routes.NEW_SESSION) },
-                sessionViewModel  = sessionViewModel
+                sessionViewModel  = sessionViewModel,
+                profileViewModel  = profileViewModel
             )
         }
 
@@ -109,10 +127,7 @@ fun ShooterMindNavGraph(
         }
 
         composable(Routes.NEW_SESSION) {
-            NewSessionScreen(
-                onNavigateBack   = { navController.popBackStack() },
-                sessionViewModel = sessionViewModel
-            )
+            NewSessionScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(Routes.STATS) {
