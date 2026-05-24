@@ -1,6 +1,7 @@
 package com.shootermind.app.ui.auth
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shootermind.app.data.repository.AuthRepository
@@ -51,6 +52,18 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = result.fold(
                 onSuccess = { AuthUiState.Success(it) },
                 onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
+            )
+        }
+    }
+
+    // ── Google Sign-In ─────────────────────────────────────────────────────
+    fun signInWithGoogle(context: Context) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+            val result = repository.signInWithGoogle(context)
+            _uiState.value = result.fold(
+                onSuccess = { AuthUiState.Success(it) },
+                onFailure = { AuthUiState.Error(it.message ?: "Google sign-in failed") }
             )
         }
     }

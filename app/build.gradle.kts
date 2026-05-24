@@ -71,6 +71,11 @@ dependencies {
     // .await() extension for Firebase Tasks
     implementation(libs.kotlinx.coroutines.play.services)
 
+    // Google Sign-In via Credential Manager
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
+    implementation(libs.googleid)
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
