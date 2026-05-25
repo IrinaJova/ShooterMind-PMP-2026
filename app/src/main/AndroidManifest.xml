@@ -45,6 +45,11 @@
             </intent-filter>
         </service>
 
+        <!-- Calendar event reminder receiver -->
+        <receiver
+            android:name=".core.notification.EventReminderReceiver"
+            android:exported="false" />
+
         <!-- Facebook Login activities -->
         <activity
             android:name="com.facebook.FacebookActivity"

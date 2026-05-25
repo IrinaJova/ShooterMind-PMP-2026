@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -38,6 +39,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +60,7 @@ import com.shootermind.app.R
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.domain.model.TrainingGoal
 import com.shootermind.app.domain.model.calculateISSFCategory
+import com.shootermind.app.ui.profile.ProfileState
 import com.shootermind.app.ui.profile.ProfileViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -68,23 +72,53 @@ fun ProfileSetupScreen(
     profileViewModel: ProfileViewModel,
     onSetupComplete : () -> Unit
 ) {
-    val context = LocalContext.current
+    // ── ALL state declared unconditionally at the top ─────────────────────────
+    // (Compose requires remember/LaunchedEffect to always run in the same order)
+    val profileState by profileViewModel.profileState.collectAsState()
+    var redirected   by remember { mutableStateOf(false) }
 
-    var firstName         by remember { mutableStateOf("") }
-    var lastName          by remember { mutableStateOf("") }
-    var birthDateMs       by remember { mutableLongStateOf(0L) }
-    var showDatePicker    by remember { mutableStateOf(false) }
-    var selectedDiscipline by remember { mutableStateOf(Discipline.AIR_RIFLE) }
-    var personalBestText  by remember { mutableStateOf("") }
-    var selectedGoal      by remember { mutableStateOf(TrainingGoal.IMPROVE_SCORE) }
-    var goalDropdownOpen  by remember { mutableStateOf(false) }
-    var profilePicPath    by remember { mutableStateOf<String?>(null) }
+    // Form state — always allocated; only shown when state == Empty
+    val context        = LocalContext.current
+    var firstName           by remember { mutableStateOf("") }
+    var lastName            by remember { mutableStateOf("") }
+    var birthDateMs         by remember { mutableLongStateOf(0L) }
+    var showDatePicker      by remember { mutableStateOf(false) }
+    var selectedDiscipline  by remember { mutableStateOf(Discipline.AIR_RIFLE) }
+    var personalBestText    by remember { mutableStateOf("") }
+    var selectedGoal        by remember { mutableStateOf(TrainingGoal.IMPROVE_SCORE) }
+    var goalDropdownOpen    by remember { mutableStateOf(false) }
+    var profilePicPath      by remember { mutableStateOf<String?>(null) }
 
     val imagePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let { profilePicPath = profileViewModel.copyImageToInternal(context, it) }
     }
+
+    // ── Redirect if profile already complete ──────────────────────────────────
+    LaunchedEffect(profileState) {
+        if (!redirected && profileState is ProfileState.Complete) {
+            redirected = true
+            onSetupComplete()
+        }
+    }
+
+    // ── UI ────────────────────────────────────────────────────────────────────
+    when {
+        profileState is ProfileState.Loading -> {
+            // Spinner while Room / Firestore sync is in progress
+            Box(
+                modifier         = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
+
+        else -> {
+    // ── Setup form ────────────────────────────────────────────────────────
 
     val dateLabel = if (birthDateMs > 0)
         SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(birthDateMs))
@@ -319,6 +353,8 @@ fun ProfileSetupScreen(
             Text(stringResource(R.string.btn_skip_for_now))
         }
     }
+        } // end else
+    } // end when
 }
 
 @Composable

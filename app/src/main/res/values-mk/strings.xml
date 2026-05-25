@@ -7,6 +7,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Почетна</string>
     <string name="nav_sessions">Сесии</string>
+    <string name="nav_calendar">Календар</string>
     <string name="nav_stats">Статистики</string>
     <string name="nav_profile">Профил</string>
 
@@ -19,6 +20,10 @@
     <string name="screen_stats">Статистики</string>
     <string name="screen_profile">Профил</string>
     <string name="screen_settings">Поставки</string>
+    <string name="screen_calendar">Календар</string>
+    <string name="screen_add_event">Додади настан</string>
+    <string name="screen_edit_event">Уреди настан</string>
+    <string name="screen_edit_profile">Уреди профил</string>
 
     <!-- Auth -->
     <string name="label_email">Е-пошта</string>
@@ -226,4 +231,126 @@
 
     <!-- Validation -->
     <string name="error_not_enough_data">Внеси барем резултат или некој журнал запис пред снимање.</string>
+
+    <!-- Home dashboard -->
+    <string name="home_today_focus">Денешен фокус</string>
+    <string name="home_streak_days">%1$d ден стрик</string>
+    <string name="home_this_week">Оваа недела</string>
+    <string name="home_last_score">Последен</string>
+    <string name="home_weekly_avg">Неделен просек</string>
+    <string name="home_no_score">—</string>
+    <string name="home_quick_actions">Брзи акции</string>
+    <string name="home_view_stats">Статистики</string>
+
+    <!-- Motivational quotes -->
+    <string name="quote_0">Секој истрел има свој процес. Верувај му.</string>
+    <string name="quote_1">Шампионите тренираат кога никој не гледа.</string>
+    <string name="quote_2">Прецизноста е навика, не талент.</string>
+    <string name="quote_3">Контролирај го дишењето. Контролирај го истрелот.</string>
+    <string name="quote_4">Фокусот е мостот помеѓу цели и резултати.</string>
+
+    <!-- Training focus by goal -->
+    <string name="focus_improve_score">Турни ги границите. Секој поен брои.</string>
+    <string name="focus_consistency">Бидете конзистентни. Изградете навика.</string>
+    <string name="focus_technique">Техника над брзина. Прецизност над сила.</string>
+    <string name="focus_competition_prep">Тренирај как на натпревар. Натпреварувај се как на тренинг.</string>
+    <string name="focus_mental">Твојот ум го контролира обарачот.</string>
+    <string name="focus_default">Тренирај попаметно на секоја сесија.</string>
+
+    <!-- Sessions list -->
+    <string name="sessions_filter_all">Сите</string>
+    <string name="sessions_filter_rifle">Пушка</string>
+    <string name="sessions_filter_pistol">Пиштол</string>
+    <string name="sessions_filter_competition">Натпревар</string>
+    <string name="sessions_search_hint">Пребарај сесии…</string>
+    <string name="sessions_duration_min">%1$d мин</string>
+    <string name="sessions_shots_count">%1$d истрели</string>
+
+    <!-- Session details -->
+    <string name="screen_session_details">Детали за сесија</string>
+    <string name="session_details_series_breakdown">Разбивање на серии</string>
+    <string name="session_details_journal">Дневник</string>
+    <string name="session_details_no_series">Нема запишани серии.</string>
+    <string name="session_details_delete">Избриши сесија</string>
+    <string name="session_details_delete_confirm">Да се избрише оваа сесија? Ова не може да се поврати.</string>
+    <string name="session_details_series_n">Серија %1$d</string>
+    <string name="session_details_mood_section">Физичка и ментална состојба</string>
+
+    <!-- Profile redesign -->
+    <string name="profile_stats_header">Статистики</string>
+    <string name="profile_total_hours">Часови тренинг</string>
+    <string name="profile_sessions_week">Сесии / Недела</string>
+    <string name="profile_achievements">Достигнувања</string>
+    <string name="profile_goal_progress">Напредок кон цел</string>
+    <string name="profile_next_milestone">Следен милник: %.1f</string>
+    <string name="profile_achievement_first">🎯 Прва сесија</string>
+    <string name="profile_achievement_consistent">📈 Конзистентен атлет</string>
+    <string name="profile_achievement_dedicated">🔥 Посветен</string>
+    <string name="profile_achievement_sharpshooter">🏆 Шарпшутер</string>
+    <string name="profile_achievement_veteran">⭐ Сезонски ветеран</string>
+    <string name="profile_achievement_elite">🌟 Елитен стрелец</string>
+
+    <!-- Stats improvements -->
+    <string name="stats_recent_trend">Последна тенденција</string>
+    <string name="stats_weekly_sessions">Сесии оваа недела</string>
+    <string name="stats_total_hours">Вкупно часови тренинг</string>
+    <string name="stats_competitions">Натпревари</string>
+    <string name="stats_streak">Тековен стрик</string>
+    <string name="stats_days">%1$d дена</string>
+
+    <!-- Common additions -->
+    <string name="btn_delete">Избриши</string>
+    <string name="dialog_confirm">Потврди</string>
+    <string name="competition_badge">🏆 Натпревар</string>
+    <string name="control_badge">📋 Контрола</string>
+
+    <!-- Home — upcoming events -->
+    <string name="home_upcoming_events">Претстојни настани</string>
+    <string name="home_see_all">Сите →</string>
+    <string name="home_no_upcoming_events">Нема закажани настани</string>
+
+    <!-- Calendar -->
+    <string name="calendar_month_prev">Претходен месец</string>
+    <string name="calendar_month_next">Следен месец</string>
+    <string name="calendar_no_events">Нема настани овој месец</string>
+    <string name="calendar_add_event">Додади настан</string>
+    <string name="calendar_edit_event">Уреди настан</string>
+    <string name="calendar_delete_event">Избриши настан</string>
+    <string name="calendar_delete_confirm">Да се избрише овој настан? Ова не може да се поврати.</string>
+    <string name="calendar_event_type">Тип на настан</string>
+    <string name="calendar_event_title">Наслов</string>
+    <string name="calendar_event_date">Датум</string>
+    <string name="calendar_event_time">Час</string>
+    <string name="calendar_event_location">Локација (опционално)</string>
+    <string name="calendar_event_discipline">Дисциплина (опционално)</string>
+    <string name="calendar_event_goal">Целен резултат (опционално)</string>
+    <string name="calendar_event_notes">Белешки (опционално)</string>
+    <string name="calendar_type_training">Тренинг</string>
+    <string name="calendar_type_competition">Натпревар</string>
+    <string name="calendar_type_recovery">Опоравување</string>
+    <string name="calendar_type_other">Друго</string>
+    <string name="calendar_discipline_none">— Без —</string>
+    <string name="calendar_reminder_section">Потсетник</string>
+    <string name="calendar_reminder_enabled">Овозможи потсетник</string>
+    <string name="calendar_reminder_when">Извести ме</string>
+    <string name="calendar_reminder_30min">30 минути претходно</string>
+    <string name="calendar_reminder_1hr">1 час претходно</string>
+    <string name="calendar_reminder_2hrs">2 часа претходно</string>
+    <string name="calendar_reminder_1day">1 ден претходно</string>
+
+    <!-- Settings redesign -->
+    <string name="settings_section_account">Профил</string>
+    <string name="settings_section_appearance">Изглед</string>
+    <string name="settings_section_notifications">Нотификации</string>
+    <string name="settings_section_about">За апликацијата</string>
+    <string name="settings_edit_profile">Уреди профил</string>
+    <string name="settings_notif_enabled">Овозможи нотификации</string>
+    <string name="settings_notif_desc">Примај потсетници за претстојни настани</string>
+    <string name="settings_version">Верзија</string>
+    <string name="settings_version_value">1.0.0</string>
+    <string name="settings_language_restart_note">Промената на јазикот бара рестарт на апликацијата.</string>
+
+    <!-- Profile editing -->
+    <string name="profile_photo_change">Смени фотографија</string>
+    <string name="btn_save_changes">Зачувај промени</string>
 </resources>

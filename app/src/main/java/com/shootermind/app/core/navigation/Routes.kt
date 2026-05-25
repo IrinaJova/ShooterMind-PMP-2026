@@ -12,7 +12,13 @@ object Routes {
     const val PROFILE       = "profile"
     const val SETTINGS      = "settings"
     const val PROFILE_SETUP = "profile_setup"
+    const val CALENDAR      = "calendar"
+    const val EDIT_PROFILE  = "edit_profile"
 
     const val SESSION_DETAIL = "session_detail/{sessionId}"
     fun sessionDetail(sessionId: String) = "session_detail/$sessionId"
+
+    const val ADD_EVENT      = "add_event"
+    const val EDIT_EVENT     = "edit_event/{eventId}"
+    fun editEvent(eventId: String) = "edit_event/$eventId"
 }

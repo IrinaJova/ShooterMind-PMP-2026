@@ -30,9 +30,12 @@ fun NavRailBar(navController: NavController) {
                 onClick  = {
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
-                            popUpTo(Routes.HOME) { saveState = true }
+                            popUpTo(Routes.HOME) {
+                                saveState = item.route != Routes.HOME
+                                inclusive = false
+                            }
                             launchSingleTop = true
-                            restoreState    = true
+                            restoreState    = item.route != Routes.HOME
                         }
                     }
                 },

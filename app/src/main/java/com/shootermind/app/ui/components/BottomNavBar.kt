@@ -24,11 +24,17 @@ fun BottomNavBar(navController: NavController) {
                 onClick  = {
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
-                            // Keep HOME as back-stack anchor so pressing Back on any
-                            // tab returns to Home rather than exiting the app immediately.
-                            popUpTo(Routes.HOME) { saveState = true }
+                            // Always pop back to HOME so the stack stays clean.
+                            // For non-HOME destinations save/restore so the user
+                            // doesn't lose their scroll position, etc.
+                            // For HOME itself do NOT restore state — we always
+                            // want a fresh landing, not a previously saved Stats stack.
+                            popUpTo(Routes.HOME) {
+                                saveState = item.route != Routes.HOME
+                                inclusive = false
+                            }
                             launchSingleTop = true
-                            restoreState    = true
+                            restoreState    = item.route != Routes.HOME
                         }
                     }
                 },

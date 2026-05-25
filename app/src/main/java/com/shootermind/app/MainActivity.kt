@@ -3,8 +3,8 @@ package com.shootermind.app
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -34,11 +34,12 @@ import com.shootermind.app.ui.theme.ThemeViewModel
 private val BOTTOM_NAV_ROUTES = setOf(
     Routes.HOME,
     Routes.SESSION_LIST,
+    Routes.CALENDAR,
     Routes.STATS,
     Routes.PROFILE
 )
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     // ── Notification permission (Android 13+) ──────────────────────────────
     private val notifPermissionLauncher = registerForActivityResult(

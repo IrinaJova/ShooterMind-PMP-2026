@@ -7,6 +7,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_sessions">Sessions</string>
+    <string name="nav_calendar">Calendar</string>
     <string name="nav_stats">Stats</string>
     <string name="nav_profile">Profile</string>
 
@@ -19,6 +20,10 @@
     <string name="screen_stats">Statistics</string>
     <string name="screen_profile">Profile</string>
     <string name="screen_settings">Settings</string>
+    <string name="screen_calendar">Calendar</string>
+    <string name="screen_add_event">Add Event</string>
+    <string name="screen_edit_event">Edit Event</string>
+    <string name="screen_edit_profile">Edit Profile</string>
 
     <!-- Auth -->
     <string name="label_email">Email address</string>
@@ -226,4 +231,126 @@
 
     <!-- Validation -->
     <string name="error_not_enough_data">Please enter at least a result or some journal data before saving.</string>
+
+    <!-- Home dashboard -->
+    <string name="home_today_focus">Today\'s Focus</string>
+    <string name="home_streak_days">%1$d Day Streak</string>
+    <string name="home_this_week">This Week</string>
+    <string name="home_last_score">Last Score</string>
+    <string name="home_weekly_avg">Weekly Avg</string>
+    <string name="home_no_score">—</string>
+    <string name="home_quick_actions">Quick Actions</string>
+    <string name="home_view_stats">Statistics</string>
+
+    <!-- Motivational quotes (daily rotation) -->
+    <string name="quote_0">Every shot has its own process. Trust it.</string>
+    <string name="quote_1">Champions train when no one is watching.</string>
+    <string name="quote_2">Precision is a habit, not a talent.</string>
+    <string name="quote_3">Control your breathing. Control the shot.</string>
+    <string name="quote_4">Focus is the bridge between goals and results.</string>
+
+    <!-- Training focus by goal -->
+    <string name="focus_improve_score">Push your limits. Every point counts.</string>
+    <string name="focus_consistency">Stay consistent. Build the habit.</string>
+    <string name="focus_technique">Technique over speed. Precision over power.</string>
+    <string name="focus_competition_prep">Train like you compete. Compete like you train.</string>
+    <string name="focus_mental">Your mind controls the trigger.</string>
+    <string name="focus_default">Train smarter every session.</string>
+
+    <!-- Sessions list -->
+    <string name="sessions_filter_all">All</string>
+    <string name="sessions_filter_rifle">Rifle</string>
+    <string name="sessions_filter_pistol">Pistol</string>
+    <string name="sessions_filter_competition">Competition</string>
+    <string name="sessions_search_hint">Search sessions…</string>
+    <string name="sessions_duration_min">%1$d min</string>
+    <string name="sessions_shots_count">%1$d shots</string>
+
+    <!-- Session details -->
+    <string name="screen_session_details">Session Details</string>
+    <string name="session_details_series_breakdown">Series Breakdown</string>
+    <string name="session_details_journal">Journal</string>
+    <string name="session_details_no_series">No series data recorded.</string>
+    <string name="session_details_delete">Delete Session</string>
+    <string name="session_details_delete_confirm">Delete this session? This cannot be undone.</string>
+    <string name="session_details_series_n">Series %1$d</string>
+    <string name="session_details_mood_section">Physical &amp; Mental State</string>
+
+    <!-- Profile redesign -->
+    <string name="profile_stats_header">Statistics</string>
+    <string name="profile_total_hours">Training Hours</string>
+    <string name="profile_sessions_week">Sessions / Week</string>
+    <string name="profile_achievements">Achievements</string>
+    <string name="profile_goal_progress">Goal Progress</string>
+    <string name="profile_next_milestone">Next milestone: %.1f</string>
+    <string name="profile_achievement_first">🎯 First Session</string>
+    <string name="profile_achievement_consistent">📈 Consistent Athlete</string>
+    <string name="profile_achievement_dedicated">🔥 Dedicated</string>
+    <string name="profile_achievement_sharpshooter">🏆 Sharpshooter</string>
+    <string name="profile_achievement_veteran">⭐ Season Veteran</string>
+    <string name="profile_achievement_elite">🌟 Elite Shooter</string>
+
+    <!-- Stats improvements -->
+    <string name="stats_recent_trend">Recent Trend</string>
+    <string name="stats_weekly_sessions">Sessions This Week</string>
+    <string name="stats_total_hours">Total Training Hours</string>
+    <string name="stats_competitions">Competitions</string>
+    <string name="stats_streak">Current Streak</string>
+    <string name="stats_days">%1$d days</string>
+
+    <!-- Common additions -->
+    <string name="btn_delete">Delete</string>
+    <string name="dialog_confirm">Confirm</string>
+    <string name="competition_badge">🏆 Competition</string>
+    <string name="control_badge">📋 Control</string>
+
+    <!-- Home — upcoming events -->
+    <string name="home_upcoming_events">Upcoming Events</string>
+    <string name="home_see_all">See All →</string>
+    <string name="home_no_upcoming_events">No upcoming events scheduled</string>
+
+    <!-- Calendar -->
+    <string name="calendar_month_prev">Previous month</string>
+    <string name="calendar_month_next">Next month</string>
+    <string name="calendar_no_events">No events this month</string>
+    <string name="calendar_add_event">Add Event</string>
+    <string name="calendar_edit_event">Edit Event</string>
+    <string name="calendar_delete_event">Delete Event</string>
+    <string name="calendar_delete_confirm">Delete this event? This cannot be undone.</string>
+    <string name="calendar_event_type">Event Type</string>
+    <string name="calendar_event_title">Title</string>
+    <string name="calendar_event_date">Date</string>
+    <string name="calendar_event_time">Time</string>
+    <string name="calendar_event_location">Location (optional)</string>
+    <string name="calendar_event_discipline">Discipline (optional)</string>
+    <string name="calendar_event_goal">Goal Score (optional)</string>
+    <string name="calendar_event_notes">Notes (optional)</string>
+    <string name="calendar_type_training">Training</string>
+    <string name="calendar_type_competition">Competition</string>
+    <string name="calendar_type_recovery">Recovery</string>
+    <string name="calendar_type_other">Other</string>
+    <string name="calendar_discipline_none">— None —</string>
+    <string name="calendar_reminder_section">Reminder</string>
+    <string name="calendar_reminder_enabled">Enable Reminder</string>
+    <string name="calendar_reminder_when">Notify me</string>
+    <string name="calendar_reminder_30min">30 minutes before</string>
+    <string name="calendar_reminder_1hr">1 hour before</string>
+    <string name="calendar_reminder_2hrs">2 hours before</string>
+    <string name="calendar_reminder_1day">1 day before</string>
+
+    <!-- Settings redesign -->
+    <string name="settings_section_account">Account</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_edit_profile">Edit Profile</string>
+    <string name="settings_notif_enabled">Enable Notifications</string>
+    <string name="settings_notif_desc">Receive reminders for upcoming events</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_version_value">1.0.0</string>
+    <string name="settings_language_restart_note">Language change requires an app restart.</string>
+
+    <!-- Profile editing -->
+    <string name="profile_photo_change">Change Photo</string>
+    <string name="btn_save_changes">Save Changes</string>
 </resources>
