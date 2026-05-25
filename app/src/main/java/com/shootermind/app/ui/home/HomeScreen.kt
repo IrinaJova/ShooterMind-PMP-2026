@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -104,6 +105,9 @@ fun HomeScreen(
     // Daily quote index (rotates each day)
     val quoteIndex = remember { (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) % 5) }
 
+    // Adaptive layout — wide = landscape phone or any tablet
+    val isWideScreen = LocalConfiguration.current.screenWidthDp >= 600
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -134,10 +138,11 @@ fun HomeScreen(
             // ── Hero card ─────────────────────────────────────────────────
             item {
                 HeroCard(
-                    firstName  = firstName,
-                    goal       = goal,
-                    streak     = stats.streak,
-                    quoteIndex = quoteIndex
+                    firstName    = firstName,
+                    goal         = goal,
+                    streak       = stats.streak,
+                    quoteIndex   = quoteIndex,
+                    isWideScreen = isWideScreen
                 )
             }
 
@@ -275,12 +280,32 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                 }
-                items(recentSessions) { session ->
-                    SessionCard(
-                        session  = session,
-                        onClick  = { onSessionClick(session.id) },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
+                if (isWideScreen) {
+                    // Tablet / landscape: two session cards per row
+                    items(recentSessions.chunked(2)) { pair ->
+                        Row(
+                            modifier              = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            pair.forEach { session ->
+                                SessionCard(
+                                    session  = session,
+                                    onClick  = { onSessionClick(session.id) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            // Keep layout balanced when the last row has only 1 card
+                            if (pair.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                    }
+                } else {
+                    items(recentSessions) { session ->
+                        SessionCard(
+                            session  = session,
+                            onClick  = { onSessionClick(session.id) },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                    }
                 }
                 item { Spacer(Modifier.height(88.dp)) }
             }
@@ -292,10 +317,11 @@ fun HomeScreen(
 
 @Composable
 private fun HeroCard(
-    firstName  : String?,
-    goal       : TrainingGoal?,
-    streak     : Int,
-    quoteIndex : Int
+    firstName    : String?,
+    goal         : TrainingGoal?,
+    streak       : Int,
+    quoteIndex   : Int,
+    isWideScreen : Boolean = false
 ) {
     val gradient = Brush.linearGradient(listOf(Purple500, Purple700))
 
@@ -329,72 +355,136 @@ private fun HeroCard(
             .background(gradient)
             .padding(horizontal = 20.dp, vertical = 24.dp)
     ) {
-        Column {
-            // Streak badge
-            if (streak > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier          = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0x33FFFFFF))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Icon(
-                        Icons.Default.LocalFireDepartment,
-                        contentDescription = null,
-                        tint     = Amber400,
-                        modifier = Modifier.size(16.dp)
-                    )
+        if (isWideScreen) {
+            // ── Landscape / tablet: text left, quote right ─────────────────
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    if (streak > 0) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier          = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color(0x33FFFFFF))
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.LocalFireDepartment,
+                                contentDescription = null,
+                                tint     = Amber400,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text       = "  " + stringResource(R.string.home_streak_days, streak),
+                                style      = MaterialTheme.typography.labelMedium,
+                                color      = Amber400,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(Modifier.height(10.dp))
+                    }
                     Text(
-                        text  = "  " + stringResource(R.string.home_streak_days, streak),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Amber400,
-                        fontWeight = FontWeight.Bold
+                        text       = welcomeText,
+                        style      = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color      = Color.White
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text          = stringResource(R.string.home_today_focus).uppercase(),
+                        style         = MaterialTheme.typography.labelSmall,
+                        color         = White60,
+                        letterSpacing = 1.5.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text       = focusText,
+                        style      = MaterialTheme.typography.bodyLarge,
+                        color      = White80,
+                        fontWeight = FontWeight.Medium
                     )
                 }
-                Spacer(Modifier.height(10.dp))
+                // Quote panel on the right
+                Box(
+                    modifier          = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0x22FFFFFF))
+                        .padding(16.dp),
+                    contentAlignment  = Alignment.Center
+                ) {
+                    Text(
+                        text      = "\"$quote\"",
+                        style     = MaterialTheme.typography.bodyMedium,
+                        color     = White80,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-
-            // Welcome
-            Text(
-                text       = welcomeText,
-                style      = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color      = Color.White
-            )
-            Spacer(Modifier.height(8.dp))
-
-            // Today's focus label
-            Text(
-                text  = stringResource(R.string.home_today_focus).uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                color = White60,
-                letterSpacing = 1.5.sp
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text       = focusText,
-                style      = MaterialTheme.typography.bodyLarge,
-                color      = White80,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Quote
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0x22FFFFFF))
-                    .padding(12.dp)
-            ) {
+        } else {
+            // ── Portrait phone: original stacked layout ────────────────────
+            Column {
+                if (streak > 0) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier          = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color(0x33FFFFFF))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.LocalFireDepartment,
+                            contentDescription = null,
+                            tint     = Amber400,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text       = "  " + stringResource(R.string.home_streak_days, streak),
+                            style      = MaterialTheme.typography.labelMedium,
+                            color      = Amber400,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                }
                 Text(
-                    text      = "\"$quote\"",
-                    style     = MaterialTheme.typography.bodySmall,
-                    color     = White80,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    text       = welcomeText,
+                    style      = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color      = Color.White
                 )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text          = stringResource(R.string.home_today_focus).uppercase(),
+                    style         = MaterialTheme.typography.labelSmall,
+                    color         = White60,
+                    letterSpacing = 1.5.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text       = focusText,
+                    style      = MaterialTheme.typography.bodyLarge,
+                    color      = White80,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0x22FFFFFF))
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text      = "\"$quote\"",
+                        style     = MaterialTheme.typography.bodySmall,
+                        color     = White80,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    )
+                }
             }
         }
     }

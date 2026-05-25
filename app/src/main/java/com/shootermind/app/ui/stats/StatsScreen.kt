@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -65,10 +66,15 @@ fun StatsScreen(statsViewModel: StatsViewModel = viewModel()) {
                 )
             }
         } else {
+            // Centre-constrain content on tablets (≥ 840 dp wide)
+            Box(
+                modifier         = Modifier.fillMaxSize().padding(innerPadding),
+                contentAlignment = Alignment.TopCenter
+            ) {
             Column(
                 modifier            = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                    .widthIn(max = 840.dp)
+                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -160,8 +166,9 @@ fun StatsScreen(statsViewModel: StatsViewModel = viewModel()) {
                 }
 
                 Spacer(Modifier.height(16.dp))
-            }
-        }
+            } // end Column
+            } // end Box
+        } // end else
     }
 }
 
