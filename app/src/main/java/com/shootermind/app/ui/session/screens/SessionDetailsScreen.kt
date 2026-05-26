@@ -21,6 +21,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,22 +38,32 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.shootermind.app.core.util.PdfExporter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.shootermind.app.R
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.domain.model.TrainingSession
@@ -73,6 +85,9 @@ fun SessionDetailsScreen(
     val sessions by sessionViewModel.sessions.collectAsState()
     val session  = sessions.find { it.id == sessionId }
 
+    val context      = LocalContext.current
+    val scope        = rememberCoroutineScope()
+    var isExporting  by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (showDeleteDialog && session != null) {
@@ -119,6 +134,40 @@ fun SessionDetailsScreen(
                 },
                 actions = {
                     if (session != null) {
+                        // Share as PDF
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    isExporting = true
+                                    try {
+                                        val uri = withContext(Dispatchers.IO) {
+                                            PdfExporter.exportSession(context, session)
+                                        }
+                                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "application/pdf"
+                                            putExtra(Intent.EXTRA_STREAM, uri)
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                context.getString(R.string.session_share_pdf)
+                                            )
+                                        )
+                                    } finally {
+                                        isExporting = false
+                                    }
+                                }
+                            },
+                            enabled = !isExporting
+                        ) {
+                            Icon(
+                                Icons.Default.Share,
+                                contentDescription = stringResource(R.string.session_share_pdf),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        // Delete
                         IconButton(onClick = { showDeleteDialog = true }) {
                             Icon(
                                 Icons.Default.Delete,
@@ -151,6 +200,21 @@ fun SessionDetailsScreen(
             ) {
                 // ── Hero header ────────────────────────────────────────────
                 SessionHeroCard(session)
+
+                // ── Session photo ──────────────────────────────────────────
+                if (!session.photoUri.isNullOrBlank()) {
+                    SectionCard(title = stringResource(R.string.session_photo_section)) {
+                        AsyncImage(
+                            model              = session.photoUri,
+                            contentDescription = stringResource(R.string.session_photo_section),
+                            contentScale       = ContentScale.Crop,
+                            modifier           = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 9f)
+                                .clip(RoundedCornerShape(8.dp))
+                        )
+                    }
+                }
 
                 // ── Series breakdown ───────────────────────────────────────
                 val series = parseSeriesData(session.seriesData)
@@ -268,9 +332,10 @@ private fun SessionHeroCard(session: TrainingSession) {
 
             Spacer(Modifier.height(12.dp))
 
-            // Score
+            // Score — integer for pistol, 1-decimal for rifle
             Text(
-                text       = "%.2f".format(session.totalScore),
+                text       = if (session.useDecimalScore) "%.1f".format(session.totalScore)
+                             else session.totalScore.toInt().toString(),
                 style      = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.ExtraBold,
                 color      = Color.White
@@ -315,6 +380,25 @@ private fun SessionHeroCard(session: TrainingSession) {
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(0.7f)
                 )
+            }
+
+            // Location
+            if (!session.locationName.isNullOrBlank()) {
+                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint     = Color.White.copy(0.8f),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text  = session.locationName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(0.8f)
+                    )
+                }
             }
         }
     }

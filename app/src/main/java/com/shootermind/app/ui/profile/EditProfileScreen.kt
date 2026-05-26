@@ -1,7 +1,12 @@
 package com.shootermind.app.ui.profile
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -59,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.shootermind.app.R
+import com.shootermind.app.core.util.FileUtils
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.domain.model.TrainingGoal
 import java.text.SimpleDateFormat
@@ -95,13 +101,86 @@ fun EditProfileScreen(
 
     val dateFmt = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
 
-    // Photo picker
-    val photoPicker = rememberLauncherForActivityResult(
+    // ── Photo source dialog ────────────────────────────────────────────────
+    var showPhotoSourceDialog by remember { mutableStateOf(false) }
+    var cameraFile            by remember { mutableStateOf<java.io.File?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) cameraFile?.absolutePath?.let { photoPath = it }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let {
-            photoPath = profileViewModel.copyImageToInternal(context, it)
+        uri?.let { photoPath = profileViewModel.copyImageToInternal(context, it) }
+    }
+
+    // Gallery permission differs by API level
+    val galleryPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        Manifest.permission.READ_MEDIA_IMAGES
+    else
+        Manifest.permission.READ_EXTERNAL_STORAGE
+
+    // Permission launchers — must be declared unconditionally (Compose rule)
+    val cameraPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val (uri, file) = FileUtils.createCameraImageUri(context)
+            cameraFile = file
+            cameraLauncher.launch(uri)
         }
+    }
+
+    val galleryPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) galleryLauncher.launch("image/*")
+    }
+
+    if (showPhotoSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showPhotoSourceDialog = false },
+            title            = { Text(stringResource(R.string.photo_source_title)) },
+            text = {
+                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)) {
+                    TextButton(
+                        onClick  = {
+                            showPhotoSourceDialog = false
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                                val (uri, file) = FileUtils.createCameraImageUri(context)
+                                cameraFile = file
+                                cameraLauncher.launch(uri)
+                            } else {
+                                cameraPermLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("📷  " + stringResource(R.string.photo_source_camera)) }
+                    TextButton(
+                        onClick  = {
+                            showPhotoSourceDialog = false
+                            if (ContextCompat.checkSelfPermission(context, galleryPermission)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                                galleryLauncher.launch("image/*")
+                            } else {
+                                galleryPermLauncher.launch(galleryPermission)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("🖼️  " + stringResource(R.string.photo_source_gallery)) }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPhotoSourceDialog = false }) {
+                    Text(stringResource(R.string.btn_cancel))
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -135,7 +214,7 @@ fun EditProfileScreen(
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primaryContainer)
                         .border(3.dp, Purple500, CircleShape)
-                        .clickable { photoPicker.launch("image/*") },
+                        .clickable { showPhotoSourceDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
                     if (photoPath != null) {
@@ -159,7 +238,7 @@ fun EditProfileScreen(
                         .size(32.dp)
                         .clip(CircleShape)
                         .background(Purple500)
-                        .clickable { photoPicker.launch("image/*") },
+                        .clickable { showPhotoSourceDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -172,7 +251,7 @@ fun EditProfileScreen(
             }
 
             TextButton(
-                onClick  = { photoPicker.launch("image/*") },
+                onClick  = { showPhotoSourceDialog = true },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(stringResource(R.string.profile_photo_change))

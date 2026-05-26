@@ -5,9 +5,11 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.shootermind.app.core.notification.EventReminderReceiver
 import com.shootermind.app.data.local.ShooterMindDatabase
@@ -15,8 +17,12 @@ import com.shootermind.app.data.repository.CalendarRepository
 import com.shootermind.app.data.repository.CalendarRepositoryImpl
 import com.shootermind.app.domain.model.CalendarEvent
 import com.shootermind.app.domain.model.EventType
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -28,14 +34,36 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         ShooterMindDatabase.getDatabase(application).calendarEventDao()
     )
 
+    // Auth-reactive uid — same pattern as SessionViewModel / ProfileViewModel.
+    // Evaluating userId once at init locks the Room query to the wrong user
+    // after a re-login (ViewModel is activity-scoped, persists across logins).
+    private val userIdFlow: StateFlow<String> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser?.uid ?: "")
+        }
+        Firebase.auth.addAuthStateListener(listener)
+        awaitClose { Firebase.auth.removeAuthStateListener(listener) }
+    }.stateIn(
+        scope        = viewModelScope,
+        started      = SharingStarted.Eagerly,
+        initialValue = Firebase.auth.currentUser?.uid ?: ""
+    )
+
+    // userId used by write operations — reads current auth at call time, correct.
     private val userId get() = Firebase.auth.currentUser?.uid ?: "anonymous"
 
-    val allEvents: StateFlow<List<CalendarEvent>> = repository
-        .getAllEvents(userId)
+    val allEvents: StateFlow<List<CalendarEvent>> = userIdFlow
+        .flatMapLatest { uid ->
+            if (uid.isEmpty()) flowOf(emptyList())
+            else repository.getAllEvents(uid)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    val upcomingEvents: StateFlow<List<CalendarEvent>> = repository
-        .getUpcomingEvents(userId, System.currentTimeMillis(), 5)
+    val upcomingEvents: StateFlow<List<CalendarEvent>> = userIdFlow
+        .flatMapLatest { uid ->
+            if (uid.isEmpty()) flowOf(emptyList())
+            else repository.getUpcomingEvents(uid, System.currentTimeMillis(), 5)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun saveEvent(event: CalendarEvent) {
@@ -83,9 +111,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // setAlarmClock does NOT require SCHEDULE_EXACT_ALARM permission
-        val alarmInfo = AlarmManager.AlarmClockInfo(reminderMs, pi)
-        am.setAlarmClock(alarmInfo, pi)
+        // setAlarmClock requires USE_EXACT_ALARM (declared in manifest, normal
+        // permission, auto-granted).  Wrap in try-catch so that an edge-case
+        // SecurityException on older/custom ROMs never crashes the save flow.
+        try {
+            val alarmInfo = AlarmManager.AlarmClockInfo(reminderMs, pi)
+            am.setAlarmClock(alarmInfo, pi)
+        } catch (e: SecurityException) {
+            Log.e("CalendarVM", "setAlarmClock denied — USE_EXACT_ALARM not granted: $e")
+        }
     }
 
     private fun cancelReminder(eventId: String) {

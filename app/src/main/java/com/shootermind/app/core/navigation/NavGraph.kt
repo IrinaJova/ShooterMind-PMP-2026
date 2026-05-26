@@ -208,15 +208,18 @@ fun ShooterMindNavGraph(
         }
 
         composable(Routes.SETTINGS) {
-            SettingsScreen(
-                themeViewModel = themeViewModel,
-                onNavigateBack = { navController.popBackStack() },
-                onEditProfile  = { navController.navigate(Routes.EDIT_PROFILE) },
-                onSignOut      = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(0) { inclusive = true }
-                    }
+            val navigateToLogin: () -> Unit = {
+                profileViewModel.signOut()
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(0) { inclusive = true }
                 }
+            }
+            SettingsScreen(
+                themeViewModel   = themeViewModel,
+                onNavigateBack   = { navController.popBackStack() },
+                onEditProfile    = { navController.navigate(Routes.EDIT_PROFILE) },
+                onSignOut        = navigateToLogin,
+                onAccountDeleted = navigateToLogin
             )
         }
     }

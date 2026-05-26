@@ -101,7 +101,10 @@ class FirestoreSyncService {
         "fatigue"          to fatigue,
         "concentration"    to concentration,
         "endurance"        to endurance,
-        "heartRate"        to heartRate
+        "heartRate"        to heartRate,
+        "latitude"         to latitude,
+        "longitude"        to longitude,
+        "locationName"     to (locationName ?: "")
     )
 
     private fun com.google.firebase.firestore.DocumentSnapshot.toSession(userId: String): TrainingSession? {
@@ -136,7 +139,10 @@ class FirestoreSyncService {
                 fatigue          = getLong("fatigue")?.toInt() ?: 0,
                 concentration    = getLong("concentration")?.toInt() ?: 0,
                 endurance        = getLong("endurance")?.toInt() ?: 0,
-                heartRate        = getLong("heartRate")?.toInt() ?: 0
+                heartRate        = getLong("heartRate")?.toInt() ?: 0,
+                latitude         = getDouble("latitude"),
+                longitude        = getDouble("longitude"),
+                locationName     = getString("locationName")?.ifBlank { null }
             )
         } catch (e: Exception) { null }
     }

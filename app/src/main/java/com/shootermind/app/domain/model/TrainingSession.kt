@@ -39,5 +39,10 @@ data class TrainingSession(
     val fatigue        : Int     = 0,
     val concentration  : Int     = 0,
     val endurance      : Int     = 0,
-    val heartRate      : Int     = 0
+    val heartRate      : Int     = 0,
+
+    // ── v6 columns — GPS location ──────────────────────────────────────────
+    val latitude       : Double? = null,
+    val longitude      : Double? = null,
+    val locationName   : String? = null   // reverse-geocoded city/place name
 )

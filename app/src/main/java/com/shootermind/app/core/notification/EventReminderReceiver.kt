@@ -17,22 +17,40 @@ class EventReminderReceiver : BroadcastReceiver() {
         val type        = intent.getStringExtra(EXTRA_TYPE)  ?: "TRAINING"
         val reminderMin = intent.getIntExtra(EXTRA_REMINDER_MINS, 60)
 
-        val (notifTitle, notifBody) = when {
-            type == "COMPETITION" && reminderMin >= 1440 ->
-                Pair("Competition tomorrow: $title",
-                     "Prepare your equipment and focus plan")
-            type == "COMPETITION" && reminderMin >= 90 ->
-                Pair("Competition in 2 hours: $title",
-                     "Get ready — check your equipment")
-            type == "RECOVERY" ->
-                Pair("Rest day: $title",
+        val timeLabel = when {
+            reminderMin >= 1440 -> "tomorrow"
+            reminderMin >= 120  -> "in ${reminderMin / 60}h"
+            reminderMin >= 60   -> "in 1 hour"
+            else                -> "in ${reminderMin} min"
+        }
+
+        val (notifTitle, notifBody) = when (type) {
+            "COMPETITION" -> when {
+                reminderMin >= 1440 ->
+                    Pair("Competition tomorrow: $title",
+                         "Prepare your equipment and focus plan")
+                reminderMin >= 120 ->
+                    Pair("Competition in ${reminderMin / 60}h: $title",
+                         "Get ready — check your equipment")
+                else ->
+                    Pair("Competition $timeLabel: $title",
+                         "Focus up — competition time is near")
+            }
+            "RECOVERY" ->
+                Pair("Recovery: $title",
                      "Take care of your body today")
-            reminderMin >= 1440 ->
-                Pair("Training tomorrow: $title",
-                     "Review your goals before you sleep")
-            else ->
-                Pair("Training starts in 1 hour: $title",
-                     "Warm up and prepare your mindset")
+            "OTHER" ->
+                Pair("Upcoming: $title",
+                     "You have an event $timeLabel")
+            else -> // TRAINING
+                when {
+                    reminderMin >= 1440 ->
+                        Pair("Training tomorrow: $title",
+                             "Review your goals before you sleep")
+                    else ->
+                        Pair("Training $timeLabel: $title",
+                             "Warm up and prepare your mindset")
+                }
         }
 
         NotificationHelper.showReminderNotification(context, notifTitle, notifBody)

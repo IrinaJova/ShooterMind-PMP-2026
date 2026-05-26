@@ -1,5 +1,6 @@
 package com.shootermind.app.ui.splash
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import com.shootermind.app.ui.auth.AuthViewModel
 import com.shootermind.app.ui.profile.ProfileState
 import com.shootermind.app.ui.profile.ProfileViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 
 @Composable
@@ -60,10 +62,26 @@ fun SplashScreen(
             return@LaunchedEffect
         }
 
-        // Wait for Room to resolve the profile
-        val resolved = profileViewModel.profileState
-            .first { it !is ProfileState.Loading }
+        // Wait for a *definitive* answer — not just Room's first emission.
+        // Room can return Empty immediately if the local DB is cold (fresh
+        // install / cleared cache) while syncFromCloud is still fetching the
+        // profile from Firestore.  Combining profileState with isSyncing lets
+        // us keep the splash spinner up until we know for sure:
+        //   • Complete → go Home (Firestore had a profile, Room is now updated)
+        //   • Empty + not syncing → go ProfileSetup (no profile anywhere)
+        val resolved = combine(
+            profileViewModel.profileState,
+            profileViewModel.isSyncing
+        ) { state, syncing ->
+            Log.d("ProfileDebug", "SplashScreen: state=$state, syncing=$syncing")
+            when {
+                state is ProfileState.Complete        -> state  // definitive: profile exists
+                state !is ProfileState.Loading && !syncing -> state  // definitive: no profile
+                else                                  -> ProfileState.Loading  // still resolving
+            }
+        }.first { it !is ProfileState.Loading }
 
+        Log.d("ProfileDebug", "SplashScreen: resolved=$resolved → navigating")
         when (resolved) {
             is ProfileState.Complete -> onNavigateToHome()
             else                     -> onNavigateToProfileSetup()

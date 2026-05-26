@@ -4,32 +4,39 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.shootermind.app.data.local.ShooterMindDatabase
 import com.shootermind.app.data.repository.SessionRepositoryImpl
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.domain.model.TrainingSession
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.util.Calendar
 
 data class StatsData(
-    val totalSessions       : Int          = 0,
-    val averageScore        : Double       = 0.0,
-    val bestScore           : Double       = 0.0,
-    val rifleCount          : Int          = 0,
-    val pistolCount         : Int          = 0,
-    val rifleAvg            : Double       = 0.0,
-    val pistolAvg           : Double       = 0.0,
-    val recentScores        : List<Double> = emptyList(),
+    val totalSessions       : Int                    = 0,
+    val averageScore        : Double                 = 0.0,
+    val bestScore           : Double                 = 0.0,
+    val rifleCount          : Int                    = 0,
+    val pistolCount         : Int                    = 0,
+    val rifleAvg            : Double                 = 0.0,
+    val pistolAvg           : Double                 = 0.0,
+    val recentScores        : List<Double>           = emptyList(),
     // Extended
-    val weeklySessionCount  : Int          = 0,
-    val weeklyAverageScore  : Double       = 0.0,
-    val totalTrainingMinutes: Int          = 0,
-    val competitionCount    : Int          = 0,
-    val streak              : Int          = 0
+    val weeklySessionCount  : Int                    = 0,
+    val weeklyAverageScore  : Double                 = 0.0,
+    val totalTrainingMinutes: Int                    = 0,
+    val competitionCount    : Int                    = 0,
+    val streak              : Int                    = 0,
+    // Chart — last 20 sessions sorted by date: (dateMs, totalScore)
+    val chartPoints         : List<Pair<Long,Double>> = emptyList()
 )
 
 class StatsViewModel(application: Application) : AndroidViewModel(application) {
@@ -38,10 +45,25 @@ class StatsViewModel(application: Application) : AndroidViewModel(application) {
         ShooterMindDatabase.getDatabase(application).trainingSessionDao()
     )
 
-    private val userId get() = Firebase.auth.currentUser?.uid ?: "anonymous"
+    // Same auth-reactive pattern as SessionViewModel / ProfileViewModel:
+    // evaluating userId once at init locks the query to the wrong user after re-login.
+    private val userIdFlow: StateFlow<String> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser?.uid ?: "")
+        }
+        Firebase.auth.addAuthStateListener(listener)
+        awaitClose { Firebase.auth.removeAuthStateListener(listener) }
+    }.stateIn(
+        scope        = viewModelScope,
+        started      = SharingStarted.Eagerly,
+        initialValue = Firebase.auth.currentUser?.uid ?: ""
+    )
 
-    val stats: StateFlow<StatsData> = repository
-        .getAllSessions(userId)
+    val stats: StateFlow<StatsData> = userIdFlow
+        .flatMapLatest { uid ->
+            if (uid.isEmpty()) flowOf(emptyList())
+            else repository.getAllSessions(uid)
+        }
         .map { sessions -> sessions.toStatsData() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsData())
 
@@ -66,7 +88,9 @@ class StatsViewModel(application: Application) : AndroidViewModel(application) {
             weeklyAverageScore   = if (weekly.isEmpty()) 0.0 else weekly.map { it.totalScore }.average(),
             totalTrainingMinutes = sumOf { it.durationMinutes },
             competitionCount     = count { it.isCompetition },
-            streak               = computeStreak(this)
+            streak               = computeStreak(this),
+            chartPoints          = this.sortedBy { it.dateMs }.takeLast(20)
+                                       .map { it.dateMs to it.totalScore }
         )
     }
 

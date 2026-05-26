@@ -17,7 +17,7 @@ import com.shootermind.app.data.local.entity.UserProfileEntity
         UserProfileEntity::class,
         CalendarEventEntity::class
     ],
-    version      = 5,
+    version      = 6,
     exportSchema = false
 )
 abstract class ShooterMindDatabase : RoomDatabase() {

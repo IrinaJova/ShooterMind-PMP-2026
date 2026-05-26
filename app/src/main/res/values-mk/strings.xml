@@ -71,6 +71,7 @@
 
     <!-- New session — details -->
     <string name="new_session_date">Датум</string>
+    <string name="new_session_location">Локација</string>
     <string name="new_session_duration">Времетраење</string>
     <string name="new_session_timer_start">Стартувај тајмер</string>
     <string name="new_session_timer_stop">Стопирај тајмер</string>
@@ -353,4 +354,36 @@
     <!-- Profile editing -->
     <string name="profile_photo_change">Смени фотографија</string>
     <string name="btn_save_changes">Зачувај промени</string>
+
+    <!-- Камера / избор на фотографија -->
+    <string name="photo_source_title">Изберете извор</string>
+    <string name="photo_source_camera">Камера</string>
+    <string name="photo_source_gallery">Галерија</string>
+    <string name="photo_change">Смени</string>
+    <string name="session_add_photo">Додај фото на сесија</string>
+    <string name="session_photo_section">Фото на сесија</string>
+
+    <!-- Статистики — графикон на напредок -->
+    <string name="stats_score_progress">Напредок на резултати</string>
+
+    <!-- Детали за сесија — PDF извоз -->
+    <string name="session_share_pdf">Сподели PDF</string>
+    <string name="session_pdf_preparing">Подготовка на PDF…</string>
+
+    <!-- Заборавена лозинка (екран за најава) -->
+    <string name="forgot_password">Заборавена лозинка?</string>
+    <string name="forgot_password_title">Ресетирај лозинка</string>
+    <string name="forgot_password_body">Внеси ја твојата е-пошта и ќе ти испратиме линк.</string>
+    <string name="forgot_password_sent">Испратен е имејл за ресетирање!</string>
+
+    <!-- Поставки — управување со сметка -->
+    <string name="settings_reset_password">Ресетирај лозинка</string>
+    <string name="settings_reset_password_desc">Испрати линк за ресетирање на лозинка</string>
+    <string name="settings_reset_password_sent">Испратен е имејл за ресетирање!</string>
+    <string name="settings_delete_account">Избриши сметка</string>
+    <string name="settings_delete_account_warning">Ова трајно ќе ги избрише твојата сметка и СИТЕ тренинг податоци. Ова не може да се поврати.</string>
+    <string name="settings_delete_confirm_button">Избриши сметка</string>
+    <string name="settings_enter_password_to_confirm">Внеси ја лозинката за потврда</string>
+    <string name="settings_delete_success_title">Сметката е избришана</string>
+    <string name="settings_delete_success_body">Твојата сметка е трајно избришана.</string>
 </resources>

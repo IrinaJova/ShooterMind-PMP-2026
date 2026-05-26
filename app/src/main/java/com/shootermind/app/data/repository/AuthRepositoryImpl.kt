@@ -7,11 +7,13 @@ import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import com.shootermind.app.domain.model.AuthUser
 import kotlinx.coroutines.tasks.await
 
@@ -87,6 +89,41 @@ class AuthRepositoryImpl : AuthRepository {
         val credential = FacebookAuthProvider.getCredential(token)
         val authResult = auth.signInWithCredential(credential).await()
         authResult.user!!.toAuthUser()
+    }
+
+    // ── Password reset ─────────────────────────────────────────────────────
+
+    override suspend fun sendPasswordResetEmail(email: String): Result<Unit> = runCatching {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
+    // ── Delete account ─────────────────────────────────────────────────────
+    // For email/password accounts [password] is required for re-authentication.
+    // For Google/Facebook accounts pass null — Firebase allows deletion when the
+    // session is recent enough; otherwise it throws FirebaseAuthRecentLoginRequiredException.
+
+    override suspend fun deleteAccount(password: String?): Result<Unit> = runCatching {
+        val user = auth.currentUser ?: error("No user signed in")
+        val uid  = user.uid
+
+        // Re-authenticate email/password users
+        if (password != null) {
+            val email      = user.email ?: error("No email associated with account")
+            val credential = EmailAuthProvider.getCredential(email, password)
+            user.reauthenticate(credential).await()
+        }
+
+        // Delete Firestore data (best effort — don't let this block auth deletion)
+        try {
+            val db       = Firebase.firestore
+            val sessions = db.collection("users").document(uid)
+                .collection("sessions").get().await()
+            for (doc in sessions.documents) { doc.reference.delete().await() }
+            db.collection("users").document(uid).delete().await()
+        } catch (_: Exception) { /* continue even if Firestore cleanup fails */ }
+
+        // Delete the Firebase Auth account
+        user.delete().await()
     }
 
     // ── Sign-out ───────────────────────────────────────────────────────────

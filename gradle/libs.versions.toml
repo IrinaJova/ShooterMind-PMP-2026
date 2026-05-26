@@ -19,6 +19,7 @@ navigationCompose   = "2.8.5"
 firebaseBom         = "33.7.0"
 googleServices      = "4.4.2"
 coroutinesPlayServices = "1.8.1"
+playServicesLocation   = "21.3.0"
 
 [libraries]
 # Core
@@ -51,6 +52,7 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 
 # Coroutines Play Services (.await() on Firebase Tasks)
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
+play-services-location           = { group = "com.google.android.gms", name = "play-services-location",          version.ref = "playServicesLocation" }
 
 # Credential Manager (Google Sign-In)
 androidx-credentials              = { group = "androidx.credentials",                                  name = "credentials",                  version.ref = "credentialManager" }
@@ -66,9 +68,10 @@ androidx-room-ktx      = { group = "androidx.room", name = "room-ktx",      vers
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler",  version.ref = "room" }
 
 # Test
-junit                  = { group = "junit",                  name = "junit",        version.ref = "junit" }
-androidx-junit         = { group = "androidx.test.ext",      name = "junit",        version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+junit                  = { group = "junit",                  name = "junit",               version.ref = "junit" }
+androidx-junit         = { group = "androidx.test.ext",      name = "junit",               version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core",        version.ref = "espressoCore" }
+androidx-test-core     = { group = "androidx.test",          name = "core-ktx",            version = "1.6.1" }
 
 [plugins]
 android-application = { id = "com.android.application",             version.ref = "agp" }

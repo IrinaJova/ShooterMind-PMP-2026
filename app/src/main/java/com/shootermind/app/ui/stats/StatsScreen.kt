@@ -1,6 +1,6 @@
 package com.shootermind.app.ui.stats
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,19 +27,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shootermind.app.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private val Purple700 = Color(0xFF6D28D9)
 private val Purple500 = Color(0xFF8B5CF6)
-private val Purple200 = Color(0xFFDDD6FE)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,106 +77,108 @@ fun StatsScreen(statsViewModel: StatsViewModel = viewModel()) {
                 modifier         = Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.TopCenter
             ) {
-            Column(
-                modifier            = Modifier
-                    .widthIn(max = 840.dp)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-
-                // ── Overview ───────────────────────────────────────────────
-                SectionTitle(stringResource(R.string.stats_overview))
-
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                Column(
+                    modifier            = Modifier
+                        .widthIn(max = 840.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    StatCard(
-                        label    = stringResource(R.string.stats_total_sessions),
-                        value    = stats.totalSessions.toString(),
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label    = stringResource(R.string.stats_best_score),
-                        value    = "%.1f".format(stats.bestScore),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                StatCard(
-                    label    = stringResource(R.string.stats_average_score),
-                    value    = "%.2f".format(stats.averageScore),
-                    modifier = Modifier.fillMaxWidth()
-                )
 
-                // ── This Week ──────────────────────────────────────────────
-                SectionTitle(stringResource(R.string.home_quick_stats))
+                    // ── Overview ───────────────────────────────────────────────
+                    SectionTitle(stringResource(R.string.stats_overview))
 
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    StatCard(
-                        label    = stringResource(R.string.stats_weekly_sessions),
-                        value    = stats.weeklySessionCount.toString(),
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label    = stringResource(R.string.stats_streak),
-                        value    = stringResource(R.string.stats_days, stats.streak),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    val hours = stats.totalTrainingMinutes / 60
-                    StatCard(
-                        label    = stringResource(R.string.stats_total_hours),
-                        value    = "${hours}h",
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label    = stringResource(R.string.stats_competitions),
-                        value    = stats.competitionCount.toString(),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                // ── Recent trend ───────────────────────────────────────────
-                if (stats.recentScores.isNotEmpty()) {
-                    SectionTitle(stringResource(R.string.stats_recent_trend))
-                    TrendBarChart(scores = stats.recentScores)
-                }
-
-                // ── Per discipline ─────────────────────────────────────────
-                if (stats.rifleCount > 0 || stats.pistolCount > 0) {
-                    SectionTitle(stringResource(R.string.stats_by_discipline))
-
-                    if (stats.rifleCount > 0) {
-                        DisciplineCard(
-                            name    = stringResource(R.string.discipline_air_rifle),
-                            count   = stats.rifleCount,
-                            average = stats.rifleAvg
+                    Row(
+                        modifier              = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        StatCard(
+                            label    = stringResource(R.string.stats_total_sessions),
+                            value    = stats.totalSessions.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            label    = stringResource(R.string.stats_best_score),
+                            value    = "%.1f".format(stats.bestScore),
+                            modifier = Modifier.weight(1f)
                         )
                     }
-                    if (stats.pistolCount > 0) {
-                        DisciplineCard(
-                            name    = stringResource(R.string.discipline_air_pistol),
-                            count   = stats.pistolCount,
-                            average = stats.pistolAvg
+                    StatCard(
+                        label    = stringResource(R.string.stats_average_score),
+                        value    = "%.2f".format(stats.averageScore),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // ── This Week ──────────────────────────────────────────────
+                    SectionTitle(stringResource(R.string.home_quick_stats))
+
+                    Row(
+                        modifier              = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        StatCard(
+                            label    = stringResource(R.string.stats_weekly_sessions),
+                            value    = stats.weeklySessionCount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            label    = stringResource(R.string.stats_streak),
+                            value    = stringResource(R.string.stats_days, stats.streak),
+                            modifier = Modifier.weight(1f)
                         )
                     }
-                }
+                    Row(
+                        modifier              = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        val hours = stats.totalTrainingMinutes / 60
+                        StatCard(
+                            label    = stringResource(R.string.stats_total_hours),
+                            value    = "${hours}h",
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            label    = stringResource(R.string.stats_competitions),
+                            value    = stats.competitionCount.toString(),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
-                Spacer(Modifier.height(16.dp))
-            } // end Column
+                    // ── Score progress line chart ──────────────────────────────
+                    if (stats.chartPoints.isNotEmpty()) {
+                        SectionTitle(stringResource(R.string.stats_score_progress))
+                        ScoreProgressChart(points = stats.chartPoints)
+                    }
+
+                    // ── Per discipline ─────────────────────────────────────────
+                    if (stats.rifleCount > 0 || stats.pistolCount > 0) {
+                        SectionTitle(stringResource(R.string.stats_by_discipline))
+
+                        if (stats.rifleCount > 0) {
+                            DisciplineCard(
+                                name    = stringResource(R.string.discipline_air_rifle),
+                                count   = stats.rifleCount,
+                                average = stats.rifleAvg
+                            )
+                        }
+                        if (stats.pistolCount > 0) {
+                            DisciplineCard(
+                                name    = stringResource(R.string.discipline_air_pistol),
+                                count   = stats.pistolCount,
+                                average = stats.pistolAvg
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                } // end Column
             } // end Box
         } // end else
     }
 }
+
+// ── Section title ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun SectionTitle(text: String) {
@@ -181,6 +189,8 @@ private fun SectionTitle(text: String) {
         color      = MaterialTheme.colorScheme.primary
     )
 }
+
+// ── Stat card ─────────────────────────────────────────────────────────────────
 
 @Composable
 private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
@@ -214,14 +224,19 @@ private fun StatCard(label: String, value: String, modifier: Modifier = Modifier
     }
 }
 
-@Composable
-private fun TrendBarChart(scores: List<Double>) {
-    if (scores.isEmpty()) return
+// ── Score progress line chart ─────────────────────────────────────────────────
 
-    val barColor = Brush.verticalGradient(listOf(Purple500, Purple200))
-    val minScore = scores.min()
-    val maxScore = scores.max()
-    val range    = (maxScore - minScore).let { if (it < 1.0) 1.0 else it }
+/**
+ * Line chart showing score trend over the last up-to-20 sessions.
+ * [points] is a list of (dateMs, totalScore) sorted oldest → newest.
+ */
+@Composable
+private fun ScoreProgressChart(points: List<Pair<Long, Double>>) {
+    if (points.isEmpty()) return
+
+    val minScore   = points.minOf { it.second }
+    val maxScore   = points.maxOf { it.second }
+    val scoreRange = if ((maxScore - minScore) < 1.0) 1.0 else (maxScore - minScore)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -231,52 +246,126 @@ private fun TrendBarChart(scores: List<Double>) {
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Bar chart
-            Row(
-                modifier              = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment     = Alignment.Bottom
-            ) {
-                scores.forEach { score ->
-                    val fraction = ((score - minScore) / range).toFloat().coerceIn(0.05f, 1f)
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height((fraction * 100).dp)
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(Brush.verticalGradient(listOf(Purple500, Purple200)))
-                                .align(Alignment.BottomCenter)
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(6.dp))
-            // X-axis labels
+
+            // Y-axis range labels
             Row(
                 modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                scores.forEachIndexed { idx, score ->
+                Text(
+                    text  = "%.0f".format(maxScore),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text  = "%.0f".format(minScore),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+            ) {
+                val w      = size.width
+                val h      = size.height
+                val padTop = 12.dp.toPx()
+                val padBot = 12.dp.toPx()
+                val chartH = h - padTop - padBot
+                val n      = points.size
+
+                // X positions (evenly distributed)
+                val xPos: List<Float> = if (n == 1) {
+                    listOf(w / 2f)
+                } else {
+                    points.indices.map { i -> i.toFloat() / (n - 1).toFloat() * w }
+                }
+
+                // Y positions — higher score → lower y value (higher on screen)
+                val yPos: List<Float> = points.map { (_, score) ->
+                    val fraction = ((score - minScore) / scoreRange).toFloat()
+                    padTop + chartH * (1f - fraction)
+                }
+
+                // Filled area under the line
+                val fillPath = Path()
+                xPos.forEachIndexed { i, x ->
+                    if (i == 0) fillPath.moveTo(x, yPos[i]) else fillPath.lineTo(x, yPos[i])
+                }
+                fillPath.lineTo(xPos.last(),  padTop + chartH)
+                fillPath.lineTo(xPos.first(), padTop + chartH)
+                fillPath.close()
+
+                drawPath(
+                    path  = fillPath,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Purple500.copy(alpha = 0.35f), Purple500.copy(alpha = 0f)),
+                        startY = padTop,
+                        endY   = padTop + chartH
+                    )
+                )
+
+                // Line connecting the dots
+                if (n > 1) {
+                    val linePath = Path()
+                    xPos.forEachIndexed { i, x ->
+                        if (i == 0) linePath.moveTo(x, yPos[i]) else linePath.lineTo(x, yPos[i])
+                    }
+                    drawPath(
+                        path  = linePath,
+                        color = Purple500,
+                        style = Stroke(
+                            width = 2.5.dp.toPx(),
+                            cap   = StrokeCap.Round,
+                            join  = StrokeJoin.Round
+                        )
+                    )
+                }
+
+                // Dots (white ring + purple fill)
+                xPos.forEachIndexed { i, x ->
+                    drawCircle(color = Color.White, radius = 5.dp.toPx(), center = Offset(x, yPos[i]))
+                    drawCircle(color = Purple700,   radius = 3.dp.toPx(), center = Offset(x, yPos[i]))
+                }
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            // X-axis date labels: first · middle · last
+            if (points.size >= 2) {
+                val dateFmt = SimpleDateFormat("MM/dd", Locale.getDefault())
+                Row(
+                    modifier              = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(
-                        text      = "%.0f".format(score),
-                        style     = MaterialTheme.typography.labelSmall,
-                        color     = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier  = Modifier.weight(1f),
-                        maxLines  = 1
+                        text  = dateFmt.format(Date(points.first().first)),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (points.size > 2) {
+                        Text(
+                            text  = dateFmt.format(Date(points[points.size / 2].first)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        text  = dateFmt.format(Date(points.last().first)),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
         }
     }
 }
+
+// ── Discipline card ───────────────────────────────────────────────────────────
 
 @Composable
 private fun DisciplineCard(name: String, count: Int, average: Double) {

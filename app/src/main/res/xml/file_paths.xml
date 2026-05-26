@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Temp files created by camera intent -->
+    <cache-path name="camera_photos" path="camera_photos/" />
+    <!-- Permanent copies of profile pictures -->
+    <files-path name="profile_pics" path="profile_pics/" />
+    <!-- Permanent copies of session photos -->
+    <files-path name="session_photos" path="session_photos/" />
+    <!-- Temporary PDF exports -->
+    <cache-path name="pdf_export" path="pdf_export/" />
+</paths>

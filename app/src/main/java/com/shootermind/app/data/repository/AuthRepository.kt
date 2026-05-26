@@ -10,5 +10,7 @@ interface AuthRepository {
     suspend fun signInAnonymously(): Result<AuthUser>
     suspend fun signInWithGoogle(context: Context): Result<AuthUser>
     suspend fun handleFacebookToken(token: String): Result<AuthUser>
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit>
+    suspend fun deleteAccount(password: String?): Result<Unit>
     fun signOut()
 }

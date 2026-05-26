@@ -150,10 +150,13 @@ fun HomeScreen(
             item {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text       = "📊",
-                    fontSize   = 14.sp,
+                    text       = stringResource(R.string.home_quick_stats),
+                    style      = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color      = MaterialTheme.colorScheme.primary,
                     modifier   = Modifier.padding(horizontal = 16.dp)
                 )
+                Spacer(Modifier.height(8.dp))
                 LazyRow(
                     modifier            = Modifier
                         .fillMaxWidth()
@@ -542,7 +545,9 @@ private fun QuickActionCard(
         shape  = RoundedCornerShape(16.dp)
     ) {
         Column(
-            modifier            = Modifier.padding(16.dp),
+            modifier            = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(icon, null, tint = fgColor, modifier = Modifier.size(28.dp))
@@ -727,7 +732,9 @@ fun SessionCard(
                 )
             }
             Text(
-                text       = "%.1f".format(session.totalScore),
+                // Integer for pistol, 1-decimal for rifle
+                text       = if (session.useDecimalScore) "%.1f".format(session.totalScore)
+                             else session.totalScore.toInt().toString(),
                 style      = MaterialTheme.typography.headlineSmall,
                 color      = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.ExtraBold

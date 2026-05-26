@@ -71,6 +71,7 @@
 
     <!-- New session — details -->
     <string name="new_session_date">Date</string>
+    <string name="new_session_location">Location</string>
     <string name="new_session_duration">Duration</string>
     <string name="new_session_timer_start">Start Timer</string>
     <string name="new_session_timer_stop">Stop Timer</string>
@@ -353,4 +354,36 @@
     <!-- Profile editing -->
     <string name="profile_photo_change">Change Photo</string>
     <string name="btn_save_changes">Save Changes</string>
+
+    <!-- Camera / photo picker -->
+    <string name="photo_source_title">Select photo source</string>
+    <string name="photo_source_camera">Camera</string>
+    <string name="photo_source_gallery">Gallery</string>
+    <string name="photo_change">Change</string>
+    <string name="session_add_photo">Add session photo</string>
+    <string name="session_photo_section">Session Photo</string>
+
+    <!-- Stats — score progress chart -->
+    <string name="stats_score_progress">Score Progress</string>
+
+    <!-- Session details — PDF export -->
+    <string name="session_share_pdf">Share PDF</string>
+    <string name="session_pdf_preparing">Preparing PDF…</string>
+
+    <!-- Forgot password (login screen) -->
+    <string name="forgot_password">Forgot password?</string>
+    <string name="forgot_password_title">Reset Password</string>
+    <string name="forgot_password_body">Enter your email and we\'ll send you a reset link.</string>
+    <string name="forgot_password_sent">Reset email sent! Check your inbox.</string>
+
+    <!-- Settings — account management -->
+    <string name="settings_reset_password">Reset Password</string>
+    <string name="settings_reset_password_desc">Send a password reset link to your email</string>
+    <string name="settings_reset_password_sent">Reset email sent! Check your inbox.</string>
+    <string name="settings_delete_account">Delete Account</string>
+    <string name="settings_delete_account_warning">This will permanently delete your account and ALL training data. This cannot be undone.</string>
+    <string name="settings_delete_confirm_button">Delete Account</string>
+    <string name="settings_enter_password_to_confirm">Enter your password to confirm</string>
+    <string name="settings_delete_success_title">Account Deleted</string>
+    <string name="settings_delete_success_body">Your account has been permanently deleted.</string>
 </resources>

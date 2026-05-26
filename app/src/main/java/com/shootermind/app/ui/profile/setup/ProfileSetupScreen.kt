@@ -1,7 +1,11 @@
 package com.shootermind.app.ui.profile.setup
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,8 +59,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import android.util.Log
 import coil.compose.AsyncImage
+import androidx.compose.material3.AlertDialog
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.shootermind.app.R
+import com.shootermind.app.core.util.FileUtils
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.domain.model.TrainingGoal
 import com.shootermind.app.domain.model.calculateISSFCategory
@@ -75,6 +84,7 @@ fun ProfileSetupScreen(
     // ── ALL state declared unconditionally at the top ─────────────────────────
     // (Compose requires remember/LaunchedEffect to always run in the same order)
     val profileState by profileViewModel.profileState.collectAsState()
+    val isSyncing    by profileViewModel.isSyncing.collectAsState()
     var redirected   by remember { mutableStateOf(false) }
 
     // Form state — always allocated; only shown when state == Empty
@@ -88,6 +98,14 @@ fun ProfileSetupScreen(
     var selectedGoal        by remember { mutableStateOf(TrainingGoal.IMPROVE_SCORE) }
     var goalDropdownOpen    by remember { mutableStateOf(false) }
     var profilePicPath      by remember { mutableStateOf<String?>(null) }
+    var showPhotoSourceDialog by remember { mutableStateOf(false) }
+    var cameraFile            by remember { mutableStateOf<java.io.File?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) cameraFile?.absolutePath?.let { profilePicPath = it }
+    }
 
     val imagePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
@@ -95,9 +113,90 @@ fun ProfileSetupScreen(
         uri?.let { profilePicPath = profileViewModel.copyImageToInternal(context, it) }
     }
 
+    // Gallery permission differs by API level
+    val galleryPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        Manifest.permission.READ_MEDIA_IMAGES
+    else
+        Manifest.permission.READ_EXTERNAL_STORAGE
+
+    // Permission launchers — must be declared unconditionally (Compose rule)
+    val cameraPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val (uri, file) = FileUtils.createCameraImageUri(context)
+            cameraFile = file
+            cameraLauncher.launch(uri)
+        }
+    }
+
+    val galleryPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) imagePicker.launch("image/*")
+    }
+
+    // ── Photo source dialog ────────────────────────────────────────────────────
+    if (showPhotoSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showPhotoSourceDialog = false },
+            title            = { Text(stringResource(R.string.photo_source_title)) },
+            text = {
+                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)) {
+                    TextButton(
+                        onClick  = {
+                            showPhotoSourceDialog = false
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                                val (uri, file) = FileUtils.createCameraImageUri(context)
+                                cameraFile = file
+                                cameraLauncher.launch(uri)
+                            } else {
+                                cameraPermLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("📷  " + stringResource(R.string.photo_source_camera)) }
+                    TextButton(
+                        onClick  = {
+                            showPhotoSourceDialog = false
+                            if (ContextCompat.checkSelfPermission(context, galleryPermission)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                                imagePicker.launch("image/*")
+                            } else {
+                                galleryPermLauncher.launch(galleryPermission)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("🖼️  " + stringResource(R.string.photo_source_gallery)) }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPhotoSourceDialog = false }) {
+                    Text(stringResource(R.string.btn_cancel))
+                }
+            }
+        )
+    }
+
     // ── Redirect if profile already complete ──────────────────────────────────
+    // Guard: only redirect when the Complete profile belongs to the CURRENT
+    // Firebase user.  Without this guard, a stale Complete(UserA) value in the
+    // StateFlow (left over from UserA's session if Settings sign-out skipped
+    // Firebase.signOut) would incorrectly redirect UserB to Home before Room
+    // has returned UserB's data, causing ProfileScreen to show "Complete your
+    // profile" because profileState then transitions to Empty for UserB.
     LaunchedEffect(profileState) {
-        if (!redirected && profileState is ProfileState.Complete) {
+        val currentUid    = Firebase.auth.currentUser?.uid ?: ""
+        val profileUserId = (profileState as? ProfileState.Complete)?.profile?.userId ?: ""
+        Log.d("ProfileDebug", "ProfileSetupScreen LaunchedEffect: " +
+            "state=$profileState, currentUid='$currentUid', " +
+            "profileUserId='$profileUserId', redirected=$redirected, isSyncing=$isSyncing")
+        if (!redirected &&
+            profileState is ProfileState.Complete &&
+            profileUserId == currentUid) {
+            Log.d("ProfileDebug", "ProfileSetupScreen: UID matches → redirecting to Home")
             redirected = true
             onSetupComplete()
         }
@@ -105,7 +204,14 @@ fun ProfileSetupScreen(
 
     // ── UI ────────────────────────────────────────────────────────────────────
     when {
-        profileState is ProfileState.Loading -> {
+        // Show spinner while:
+        //   (a) Room hasn't returned yet (Loading), OR
+        //   (b) Firestore sync is running and we don't yet have a Complete profile
+        //       for the current user.  This prevents flashing the setup form at
+        //       users who already completed setup on another device / after a
+        //       cache clear — they will be redirected once sync writes to Room.
+        profileState is ProfileState.Loading ||
+        (isSyncing && profileState !is ProfileState.Complete) -> {
             // Spinner while Room / Firestore sync is in progress
             Box(
                 modifier         = Modifier
@@ -182,7 +288,7 @@ fun ProfileSetupScreen(
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .border(3.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                .clickable { imagePicker.launch("image/*") },
+                .clickable { showPhotoSourceDialog = true },
             contentAlignment = Alignment.Center
         ) {
             if (profilePicPath != null) {
@@ -338,9 +444,11 @@ fun ProfileSetupScreen(
                     personalBest      = personalBestText.toDoubleOrNull() ?: 0.0,
                     goal              = selectedGoal,
                     profilePictureUri = profilePicPath,
-                    isNewProfile      = true
+                    isNewProfile      = true,
+                    onComplete        = { onSetupComplete() }
                 )
-                onSetupComplete()
+                // Navigation is handled by onComplete (called after Room saves)
+                // and by LaunchedEffect(profileState) above as a fallback
             },
             enabled  = firstName.isNotBlank() && lastName.isNotBlank(),
             modifier = Modifier.fillMaxWidth()

@@ -34,7 +34,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     AnalyticsHelper.logLogin("email")
                     AuthUiState.Success(it)
                 },
-                onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
             )
         }
     }
@@ -49,7 +49,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     AnalyticsHelper.logSignUp("email")
                     AuthUiState.Success(it)
                 },
-                onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
             )
         }
     }
@@ -64,7 +64,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     AnalyticsHelper.logLogin("anonymous")
                     AuthUiState.Success(it)
                 },
-                onFailure = { AuthUiState.Error(it.message ?: "Unknown error") }
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
             )
         }
     }
@@ -79,7 +79,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     AnalyticsHelper.logLogin("google")
                     AuthUiState.Success(it)
                 },
-                onFailure = { AuthUiState.Error(it.message ?: "Google sign-in failed") }
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
             )
         }
     }
@@ -94,7 +94,37 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     AnalyticsHelper.logLogin("facebook")
                     AuthUiState.Success(it)
                 },
-                onFailure = { AuthUiState.Error(it.message ?: "Facebook sign-in failed") }
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
+            )
+        }
+    }
+
+    // ── Password reset (forgot password / settings reset) ─────────────────
+    fun sendPasswordReset(email: String) {
+        if (email.isBlank()) {
+            _uiState.value = AuthUiState.Error("Please enter your email address")
+            return
+        }
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+            val result = repository.sendPasswordResetEmail(email.trim())
+            _uiState.value = result.fold(
+                onSuccess = { AuthUiState.PasswordResetSent },
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
+            )
+        }
+    }
+
+    // ── Delete account ─────────────────────────────────────────────────────
+    // [password] must be supplied for email/password accounts (re-authentication).
+    // Pass null for Google / Facebook / anonymous accounts.
+    fun deleteAccount(password: String?) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+            val result = repository.deleteAccount(password)
+            _uiState.value = result.fold(
+                onSuccess = { AuthUiState.AccountDeleted },
+                onFailure = { AuthUiState.Error(friendlyAuthError(it)) }
             )
         }
     }
@@ -109,5 +139,66 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     // ── Helpers ────────────────────────────────────────────────────────────
     fun clearState() {
         _uiState.value = AuthUiState.Idle
+    }
+
+    /**
+     * Converts raw Firebase exception messages into short, user-friendly strings.
+     * Firebase (since late 2023) intentionally merges "wrong password" and
+     * "user not found" into one generic credential error to prevent enumeration.
+     */
+    private fun friendlyAuthError(e: Throwable): String {
+        val msg = e.message?.lowercase() ?: return "Authentication failed. Please try again."
+        return when {
+            // Wrong email or password (Firebase consolidated error)
+            msg.contains("credential") ||
+            msg.contains("malformed")  ||
+            msg.contains("incorrect")  ||
+            msg.contains("invalid login") ||
+            msg.contains("wrong password") ->
+                "Incorrect email or password."
+
+            // Account not found
+            msg.contains("no user")       ||
+            msg.contains("user not found") ->
+                "No account found with this email."
+
+            // Email format
+            msg.contains("invalid email") ||
+            msg.contains("badly formatted") ->
+                "Please enter a valid email address."
+
+            // Account disabled
+            msg.contains("disabled") ->
+                "This account has been disabled. Contact support."
+
+            // Too many attempts
+            msg.contains("too many") ||
+            msg.contains("quota")    ||
+            msg.contains("blocked")  ->
+                "Too many failed attempts. Please try again later."
+
+            // Network
+            msg.contains("network")     ||
+            msg.contains("connection")  ||
+            msg.contains("unavailable") ->
+                "No internet connection. Please check your network."
+
+            // Weak password (registration)
+            msg.contains("weak password") ||
+            msg.contains("at least 6") ->
+                "Password must be at least 6 characters."
+
+            // Email already in use (registration)
+            msg.contains("already in use") ||
+            msg.contains("email address is already") ->
+                "An account with this email already exists."
+
+            // Recent login required (delete account)
+            msg.contains("recent login") ||
+            msg.contains("requires recent") ->
+                "Please sign out and sign in again before deleting your account."
+
+            else -> "Authentication failed. Please try again."
+        }
     }
 }

@@ -69,7 +69,10 @@ class SessionRepositoryImpl(
         fatigue          = fatigue,
         concentration    = concentration,
         endurance        = endurance,
-        heartRate        = heartRate
+        heartRate        = heartRate,
+        latitude         = latitude,
+        longitude        = longitude,
+        locationName     = locationName
     )
 
     private fun TrainingSession.toEntity() = TrainingSessionEntity(
@@ -102,6 +105,9 @@ class SessionRepositoryImpl(
         fatigue          = fatigue,
         concentration    = concentration,
         endurance        = endurance,
-        heartRate        = heartRate
+        heartRate        = heartRate,
+        latitude         = latitude,
+        longitude        = longitude,
+        locationName     = locationName
     )
 }

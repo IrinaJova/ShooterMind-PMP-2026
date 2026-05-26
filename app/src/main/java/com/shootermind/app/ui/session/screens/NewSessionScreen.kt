@@ -2,6 +2,19 @@
 
 package com.shootermind.app.ui.session.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,6 +41,8 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -64,6 +81,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,7 +92,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.shootermind.app.R
+import com.shootermind.app.core.util.FileUtils
 import com.shootermind.app.domain.model.Discipline
 import com.shootermind.app.ui.session.NewSessionViewModel
 import kotlinx.coroutines.launch
@@ -87,6 +109,101 @@ fun NewSessionScreen(onNavigateBack: () -> Unit) {
     val vm           = viewModel<NewSessionViewModel>()
     val scope        = rememberCoroutineScope()
     val snackbarHost = remember { SnackbarHostState() }
+    val context      = LocalContext.current
+
+    // ── Photo launchers (must be unconditional) ────────────────────────────
+    var cameraFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) cameraFile?.absolutePath?.let { vm.photoUri = it }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { vm.photoUri = FileUtils.copyUriToInternal(context, it, "session_photos") }
+    }
+
+    // Gallery permission differs by API level
+    val galleryPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        Manifest.permission.READ_MEDIA_IMAGES
+    else
+        Manifest.permission.READ_EXTERNAL_STORAGE
+
+    // Permission launchers — must be declared unconditionally (Compose rule)
+    val cameraPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val (uri, file) = FileUtils.createCameraImageUri(context)
+            cameraFile = file
+            cameraLauncher.launch(uri)
+        }
+    }
+
+    val galleryPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) galleryLauncher.launch("image/*")
+    }
+
+    // ── GPS ────────────────────────────────────────────────────────────────
+    var isFetchingLocation by remember { mutableStateOf(false) }
+    val fusedClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val locationPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (!granted) return@rememberLauncherForActivityResult
+        scope.launch {
+            isFetchingLocation = true
+            try {
+                val cts = CancellationTokenSource()
+                val loc = fusedClient
+                    .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cts.token)
+                    .await()
+                if (loc != null) {
+                    vm.latitude  = loc.latitude
+                    vm.longitude = loc.longitude
+                    // Reverse geocode on IO thread
+                    vm.locationName = withContext(Dispatchers.IO) {
+                        reverseGeocode(context, loc.latitude, loc.longitude)
+                    }
+                }
+            } finally {
+                isFetchingLocation = false
+            }
+        }
+    }
+
+    // Called when the user taps "Add location" button
+    val onGetLocation: () -> Unit = {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            scope.launch {
+                isFetchingLocation = true
+                try {
+                    val cts = CancellationTokenSource()
+                    val loc = fusedClient
+                        .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cts.token)
+                        .await()
+                    if (loc != null) {
+                        vm.latitude  = loc.latitude
+                        vm.longitude = loc.longitude
+                        vm.locationName = withContext(Dispatchers.IO) {
+                            reverseGeocode(context, loc.latitude, loc.longitude)
+                        }
+                    }
+                } finally {
+                    isFetchingLocation = false
+                }
+            }
+        } else {
+            locationPermLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
 
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -219,12 +336,34 @@ fun NewSessionScreen(onNavigateBack: () -> Unit) {
             // ── Tab content ────────────────────────────────────────────────
             when (selectedTab) {
                 0 -> SessionInfoTab(
-                    vm              = vm,
-                    onPickDate      = { showDatePicker = true },
-                    onPickStartTime = { showStartTimePicker = true },
-                    onPickEndTime   = { showEndTimePicker = true }
+                    vm                 = vm,
+                    onPickDate         = { showDatePicker = true },
+                    onPickStartTime    = { showStartTimePicker = true },
+                    onPickEndTime      = { showEndTimePicker = true },
+                    onGetLocation      = onGetLocation,
+                    isFetchingLocation = isFetchingLocation
                 )
-                1 -> JournalTab(vm = vm)
+                1 -> JournalTab(
+                    vm          = vm,
+                    onTakePhoto = {
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                == PackageManager.PERMISSION_GRANTED) {
+                            val (uri, file) = FileUtils.createCameraImageUri(context)
+                            cameraFile = file
+                            cameraLauncher.launch(uri)
+                        } else {
+                            cameraPermLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    },
+                    onPickFromGallery = {
+                        if (ContextCompat.checkSelfPermission(context, galleryPermission)
+                                == PackageManager.PERMISSION_GRANTED) {
+                            galleryLauncher.launch("image/*")
+                        } else {
+                            galleryPermLauncher.launch(galleryPermission)
+                        }
+                    }
+                )
             }
         }
     }
@@ -262,10 +401,12 @@ private fun DisciplineSelector(vm: NewSessionViewModel) {
 
 @Composable
 private fun SessionInfoTab(
-    vm             : NewSessionViewModel,
-    onPickDate     : () -> Unit,
-    onPickStartTime: () -> Unit,
-    onPickEndTime  : () -> Unit
+    vm                 : NewSessionViewModel,
+    onPickDate         : () -> Unit,
+    onPickStartTime    : () -> Unit,
+    onPickEndTime      : () -> Unit,
+    onGetLocation      : () -> Unit        = {},
+    isFetchingLocation : Boolean           = false
 ) {
     val dateLabel = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(vm.dateMs))
     val startLabel = if (vm.startHour >= 0)
@@ -291,6 +432,19 @@ private fun SessionInfoTab(
             icon    = Icons.Default.CalendarToday,
             text    = dateLabel,
             onClick = onPickDate
+        )
+
+        // ── Location ───────────────────────────────────────────────────────
+        SectionLabel(stringResource(R.string.new_session_location))
+        LocationRow(
+            locationName       = vm.locationName,
+            isFetching         = isFetchingLocation,
+            onGetLocation      = onGetLocation,
+            onClearLocation    = {
+                vm.latitude     = null
+                vm.longitude    = null
+                vm.locationName = null
+            }
         )
 
         // ── Time ───────────────────────────────────────────────────────────
@@ -348,15 +502,17 @@ private fun SessionInfoTab(
         // ── Result section ─────────────────────────────────────────────────
         SectionLabel(stringResource(R.string.session_result_section))
 
-        // Decimal score toggle
-        FilterChip(
-            selected    = vm.useDecimalScore,
-            onClick     = { vm.useDecimalScore = !vm.useDecimalScore },
-            label       = { Text(stringResource(R.string.session_decimal_score)) },
-            leadingIcon = if (vm.useDecimalScore) {
-                { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
-            } else null
-        )
+        // Decimal score toggle — Air Rifle only (ISSF: Air Pistol uses integer scoring)
+        if (vm.discipline == Discipline.AIR_RIFLE) {
+            FilterChip(
+                selected    = vm.useDecimalScore,
+                onClick     = { vm.useDecimalScore = !vm.useDecimalScore },
+                label       = { Text(stringResource(R.string.session_decimal_score)) },
+                leadingIcon = if (vm.useDecimalScore) {
+                    { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
+                } else null
+            )
+        }
 
         // Split into series toggle
         FilterChip(
@@ -387,7 +543,7 @@ private fun SessionInfoTab(
                 minValue    = 1
             )
 
-            // Series score fields
+            // Series score fields — keyboard matches discipline decimal rule
             val keyboard = if (vm.useDecimalScore)
                 KeyboardOptions(keyboardType = KeyboardType.Decimal)
             else
@@ -428,7 +584,9 @@ private fun SessionInfoTab(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text       = "%.2f".format(total),
+                            // Air Pistol: integer display; Air Rifle: 1-decimal display
+                            text       = if (vm.useDecimalScore) "%.1f".format(total)
+                                         else total.toInt().toString(),
                             style      = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color      = MaterialTheme.colorScheme.primary
@@ -468,7 +626,39 @@ private fun SessionInfoTab(
 // ── Journal tab ─────────────────────────────────────────────────────────────
 
 @Composable
-private fun JournalTab(vm: NewSessionViewModel) {
+private fun JournalTab(
+    vm               : NewSessionViewModel,
+    onTakePhoto      : () -> Unit = {},
+    onPickFromGallery: () -> Unit = {}
+) {
+    var showPhotoDialog by remember { mutableStateOf(false) }
+
+    // ── Photo source dialog ────────────────────────────────────────────────
+    if (showPhotoDialog) {
+        AlertDialog(
+            onDismissRequest = { showPhotoDialog = false },
+            title            = { Text(stringResource(R.string.photo_source_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(
+                        onClick  = { showPhotoDialog = false; onTakePhoto() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("📷  " + stringResource(R.string.photo_source_camera)) }
+                    TextButton(
+                        onClick  = { showPhotoDialog = false; onPickFromGallery() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("🖼️  " + stringResource(R.string.photo_source_gallery)) }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPhotoDialog = false }) {
+                    Text(stringResource(R.string.btn_cancel))
+                }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -476,6 +666,68 @@ private fun JournalTab(vm: NewSessionViewModel) {
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        // ── Session photo ──────────────────────────────────────────────────
+        SectionLabel(stringResource(R.string.session_photo_section))
+        if (vm.photoUri != null) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                AsyncImage(
+                    model              = vm.photoUri,
+                    contentDescription = stringResource(R.string.session_photo_section),
+                    contentScale       = ContentScale.Crop,
+                    modifier           = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .clip(MaterialTheme.shapes.medium)
+                )
+                // Change / remove button
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f))
+                            .clickable { showPhotoDialog = true }
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) { Text(stringResource(R.string.photo_change), style = MaterialTheme.typography.labelSmall) }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f))
+                            .clickable { vm.photoUri = null }
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) { Text("✕", style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error) }
+                }
+            }
+        } else {
+            Box(
+                modifier         = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
+                    .clickable { showPhotoDialog = true },
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("📷", fontSize = 32.sp)
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text  = stringResource(R.string.session_add_photo),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        HorizontalDivider()
 
         // ── Notes ──────────────────────────────────────────────────────────
         OutlinedTextField(
@@ -666,6 +918,106 @@ private fun EmojiRatingRow(
                 }
             }
         }
+    }
+}
+
+// ── Location row ────────────────────────────────────────────────────────────
+
+@Composable
+private fun LocationRow(
+    locationName   : String?,
+    isFetching     : Boolean,
+    onGetLocation  : () -> Unit,
+    onClearLocation: () -> Unit
+) {
+    Row(
+        modifier          = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        when {
+            isFetching -> {
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
+                )
+                Text(
+                    text  = "Getting location…",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            locationName != null -> {
+                Icon(
+                    Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint     = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text     = locationName,
+                    style    = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick  = onClearLocation,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "Clear location",
+                        tint     = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+            else -> {
+                TextButton(onClick = onGetLocation) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text("Add location")
+                }
+            }
+        }
+    }
+}
+
+/** Reverse geocode lat/lng → readable place name. Run on Dispatchers.IO. */
+fun reverseGeocode(context: android.content.Context, lat: Double, lng: Double): String? {
+    return try {
+        val geocoder = Geocoder(context, java.util.Locale.getDefault())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // API 33+: async callback
+            var result: String? = null
+            val latch = java.util.concurrent.CountDownLatch(1)
+            geocoder.getFromLocation(lat, lng, 1) { addresses ->
+                result = buildLocationName(addresses)
+                latch.countDown()
+            }
+            latch.await(3, java.util.concurrent.TimeUnit.SECONDS)
+            result
+        } else {
+            @Suppress("DEPRECATION")
+            val addresses = geocoder.getFromLocation(lat, lng, 1)
+            buildLocationName(addresses ?: emptyList())
+        }
+    } catch (e: Exception) { null }
+}
+
+private fun buildLocationName(addresses: List<android.location.Address>): String? {
+    val addr = addresses.firstOrNull() ?: return null
+    val locality    = addr.locality         // city
+    val subLocality = addr.subLocality      // district
+    val country     = addr.countryName
+    return when {
+        locality != null && country != null    -> "$locality, $country"
+        subLocality != null && country != null -> "$subLocality, $country"
+        country != null                        -> country
+        else                                   -> null
     }
 }
 

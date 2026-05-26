@@ -27,7 +27,17 @@ class NewSessionViewModel(application: Application) : AndroidViewModel(applicati
     // ── Discipline ────────────────────────────────────────────────────────
     var defaultDiscipline by mutableStateOf(Discipline.AIR_RIFLE)
         private set
-    var discipline by mutableStateOf(Discipline.AIR_RIFLE)
+
+    // Custom backing state so the setter can enforce ISSF decimal rules:
+    //   Air Rifle  → decimal scoring (10.9 style)
+    //   Air Pistol → integer scoring (no decimals, ISSF rule)
+    private val _discipline = mutableStateOf(Discipline.AIR_RIFLE)
+    var discipline: Discipline
+        get() = _discipline.value
+        set(value) {
+            _discipline.value  = value
+            useDecimalScore    = (value == Discipline.AIR_RIFLE)
+        }
 
     // ── Date & time ───────────────────────────────────────────────────────
     var dateMs      by mutableLongStateOf(System.currentTimeMillis())
@@ -41,6 +51,8 @@ class NewSessionViewModel(application: Application) : AndroidViewModel(applicati
     var isControlSession by mutableStateOf(false)
 
     // ── Result ────────────────────────────────────────────────────────────
+    // Initial value matches the initial discipline (AIR_RIFLE = decimal).
+    // Updated automatically when `discipline` setter fires.
     var useDecimalScore  by mutableStateOf(true)
     var splitIntoSeries  by mutableStateOf(true)
     var seriesCount      by mutableIntStateOf(6)
@@ -54,6 +66,14 @@ class NewSessionViewModel(application: Application) : AndroidViewModel(applicati
     // Direct input (when splitIntoSeries = false)
     var totalResultText by mutableStateOf("")
     var shotCountText   by mutableStateOf("")
+
+    // ── Photo ────────────────────────────────────────────────────────────
+    var photoUri       by mutableStateOf<String?>(null)
+
+    // ── GPS location ──────────────────────────────────────────────────────
+    var latitude       by mutableStateOf<Double?>(null)
+    var longitude      by mutableStateOf<Double?>(null)
+    var locationName   by mutableStateOf<String?>(null)
 
     // ── Journal ───────────────────────────────────────────────────────────
     var notes          by mutableStateOf("")
@@ -84,7 +104,7 @@ class NewSessionViewModel(application: Application) : AndroidViewModel(applicati
                 val d = runCatching { Discipline.valueOf(entity.discipline) }
                     .getOrDefault(Discipline.AIR_RIFLE)
                 defaultDiscipline = d
-                discipline        = d
+                discipline        = d   // triggers setter → also sets useDecimalScore
             }
         }
     }
@@ -141,7 +161,10 @@ class NewSessionViewModel(application: Application) : AndroidViewModel(applicati
                     notes            = notes.trim(),
                     seriesData       = seriesStr,
                     durationMinutes  = calculateDurationMinutes(),
-                    photoUri         = null,
+                    photoUri         = photoUri,
+                    latitude         = latitude,
+                    longitude        = longitude,
+                    locationName     = locationName,
                     startHour        = startHour,
                     startMinute      = startMinute,
                     endHour          = endHour,
