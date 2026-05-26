@@ -109,10 +109,15 @@ fun ShooterMindNavGraph(
         // ── Profile Setup ─────────────────────────────────────────────────
         composable(Routes.PROFILE_SETUP) {
             ProfileSetupScreen(
-                profileViewModel = profileViewModel,
-                onSetupComplete  = {
+                profileViewModel  = profileViewModel,
+                onSetupComplete   = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.PROFILE_SETUP) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

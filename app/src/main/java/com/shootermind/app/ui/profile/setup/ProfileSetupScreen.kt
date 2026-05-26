@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -34,13 +35,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -78,8 +82,9 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileSetupScreen(
-    profileViewModel: ProfileViewModel,
-    onSetupComplete : () -> Unit
+    profileViewModel  : ProfileViewModel,
+    onSetupComplete   : () -> Unit,
+    onNavigateToLogin : () -> Unit = {}
 ) {
     // ── ALL state declared unconditionally at the top ─────────────────────────
     // (Compose requires remember/LaunchedEffect to always run in the same order)
@@ -203,6 +208,21 @@ fun ProfileSetupScreen(
     }
 
     // ── UI ────────────────────────────────────────────────────────────────────
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = onNavigateToLogin) {
+                        Icon(
+                            imageVector        = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to Login"
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
     when {
         // Show spinner while:
         //   (a) Room hasn't returned yet (Loading), OR
@@ -264,7 +284,8 @@ fun ProfileSetupScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+            .padding(innerPadding)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // ── Title ──────────────────────────────────────────────────────────
@@ -463,6 +484,7 @@ fun ProfileSetupScreen(
     }
         } // end else
     } // end when
+    } // end Scaffold
 }
 
 @Composable
